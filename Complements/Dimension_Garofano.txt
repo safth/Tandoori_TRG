@@ -1,0 +1,15 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%fichier avec les dimensions du réacteur.
+%- pump rotation frequency (s^-1)
+%- disk radius (cm)
+%- base radius (cm)
+%- pumping tube height (cm)
+%- pumping tube radius (cm)
+%- valve radius	(cm)	
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+833
+4.9	
+3
+50
+2
+5
