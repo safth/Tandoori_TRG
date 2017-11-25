@@ -67,11 +67,11 @@ global nu_hmdso ;
                 0 0 0 0 nu_hmdso];
             
             
-PopNeutre = [0 0 0 0 0;
-             0 0 0 0 0;
-             0 0 0 0 0;
-             0 0 0 0 0;
-             0 0 0 0 0];
+PopNeutre = [0 0 0     0 0; % rajouter n_g et sum(n_metast_Argon) J
+             0 0 0     0 0;
+             0 0 1e-16 0 0;
+             0 0 0     0 0;
+             0 0 0 0 1e-16];
 
 %% 7) Pop venant des 2P se désexcitant apres impact avec un autre 1s
   %calcul fait par donnelly lorsqu'il résoud les 1s!!!
