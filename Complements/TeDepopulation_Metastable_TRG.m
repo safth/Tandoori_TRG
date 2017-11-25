@@ -1,4 +1,4 @@
-function [Depop2p,DepopRadFond,PopAutoAbs,DepopMix,PopMix,DepopSuperelestique,DepopIonisation,DepopNeutre,PopUpDown] = ...
+function [Depop2p,DepopRadFond,PopAutoAbs,DepopMix,PopMix,DepopSuperelestique,DepopIonisation,DepopNeutre,PopUpDown,PopNeutre] = ...
     TeDepopulation_Metastable_TRG(i,ng,ne,Aij1s,Thetaij,rate1s_2p,rateQuenching,rateNeutral,Br2p)
 
 %% 1) Depop impact électronique vers les 2p
@@ -65,6 +65,13 @@ global nu_hmdso ;
                 0 0 nu_hmdso 0 0;
                 0 0 0 nu_hmdso 0;
                 0 0 0 0 nu_hmdso];
+            
+            
+PopNeutre = [0 0 0 0 0;
+             0 0 0 0 0;
+             0 0 0 0 0;
+             0 0 0 0 0;
+             0 0 0 0 0];
 
 %% 7) Pop venant des 2P se désexcitant apres impact avec un autre 1s
   %calcul fait par donnelly lorsqu'il résoud les 1s!!!
