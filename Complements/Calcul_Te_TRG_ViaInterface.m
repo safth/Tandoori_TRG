@@ -286,7 +286,7 @@ for gaz=gaz_i:gaz_f %On fait le calcul théorique de l'intensité de raies pour 2=
         waitbar(wait/(length(gaz_i:gaz_f)*length(Ne)),h,'Calcul théorique') 
         wait=wait+1;
         %% Calcul du bilan de population: gains=pertes
-       [densite_1s,sig_densite1s,densite_2p,sig_density,Gains_2p,Pertes_2p,Emission,PopFond,Mecanisms,energie_1s,energie_2p,Gains_1s,Pertes_1s]=TeIntTheo_TRG(gaz,Ne(j),Te,rateGround_1s,rateGround_2p,rate1s_2p,rateQuenching,rateNeutral,sig_rateGround_1s,sig_rateGround_2p,sig_rate1s_2p,sig_rateQuenching,sig_rateNeutral,Tg,longueur,AllIntegral,P,1,0,flow,ChoixAutoabs,sig_longueur);
+       [densite_1s,sig_densite1s,densite_2p,sig_density,Gains_2p,Pertes_2p,Emission,PopFond,Mecanisms,energie_1s,energie_2p,Gains_1s,Pertes_1s]=TeIntTheo_TRG(gaz,Ne(j),Te,rateGround_1s,rateGround_2p,rate1s_2p,rateQuenching,rateNeutral,sig_rateGround_1s,sig_rateGround_2p,sig_rate1s_2p,sig_rateQuenching,sig_rateNeutral,Tg,longueur,AllIntegral,P,1,0,flow,ChoixAutoabs,sig_longueur,densite1s(3,j,:,:));
        %% Extraction et mise en mémoire des données pour chaque fichier, densité électronique et Te
 
        for i=1:length(Te)

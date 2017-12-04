@@ -1,5 +1,5 @@
 function [Depop2p,DepopRadFond,PopAutoAbs,DepopMix,PopMix,DepopSuperelestique,DepopIonisation,DepopNeutre,PopUpDown,PopNeutre] = ...
-    TeDepopulation_Metastable_TRG(i,ng,ne,Aij1s,Thetaij,rate1s_2p,rateQuenching,rateNeutral,Br2p)
+    TeDepopulation_Metastable_TRG(i,gaz,ng,ne,Aij1s,Thetaij,rate1s_2p,rateQuenching,rateNeutral,Br2p,nm_Ar)
 
 %% 1) Depop impact électronique vers les 2p
 Depop2p = ne*[0 0 0 0 0; %RIEN
@@ -55,23 +55,18 @@ DepopIonisation = ne*[0           0               0               0             
 % Les taux de réaction sont considèrés les memes pour les 2 métastables par
 % donnelly. Nous considèrons que c'est les mêmes pour les résonnants aussi.
 global nu_hmdso ;
-%  DepopNeutre = [0 0 0 0 0;
-%                 0 sum(ng'.*rateNeutral)+nu_hmdso 0 0 0;
-%                 0 0 sum(ng'.*rateNeutral)+nu_hmdso 0 0;
-%                 0 0 0 sum(ng'.*rateNeutral)+nu_hmdso 0;
-%                 0 0 0 0 sum(ng'.*rateNeutral)+nu_hmdso];
- DepopNeutre = [0 0 0 0 0;
-                0 nu_hmdso 0 0 0;
-                0 0 nu_hmdso 0 0;
-                0 0 0 nu_hmdso 0;
-                0 0 0 0 nu_hmdso];
-            
-            
-PopNeutre = [0 0 0     0 0; % rajouter n_g et sum(n_metast_Argon) J
-             0 0 0     0 0;
-             0 0 1e-16 0 0;
-             0 0 0     0 0;
-             0 0 0 0 1e-16];
+  DepopNeutre = [0 0 0 0 0;
+                 0 sum(ng'.*rateNeutral)+nu_hmdso 0 0 0;
+                 0 0 sum(ng'.*rateNeutral)+nu_hmdso 0 0;
+                 0 0 0 sum(ng'.*rateNeutral)+nu_hmdso 0;
+                 0 0 0 0 sum(ng'.*rateNeutral)+nu_hmdso];
+
+       
+PopNeutre = sum(nm_Ar(1,1,i,:))*ng(gaz)*(1/2)*[0 ; % rajouter n_g et sum(n_metast_Argon) J
+                                               0;
+                                               1e-16 ;
+                                               0  ;
+                                               1e-16];
 
 %% 7) Pop venant des 2P se désexcitant apres impact avec un autre 1s
   %calcul fait par donnelly lorsqu'il résoud les 1s!!!
