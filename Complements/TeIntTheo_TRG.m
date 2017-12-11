@@ -137,9 +137,9 @@ for t=1:length(Te)
         if Aij1s(i)~=0
             if ChoixAutoabs==1
                [Thetaij_1s(i)]=TeEscapeFactorDOPE_TRG(gaz,LambdaTheo1s(i),poids1s(i),1,Aij1s(i),ng(gaz),longueur,Tg,0,sig_longueur);        
-            else
-               Thetaij_1s(i) = 1; % on met l'autoabsorption à 0 pour tester Donnelly (autoabs = 1-thetaij)
             end
+        else
+            Thetaij_1s(i) = 1; % on met l'autoabsorption à 0 pour tester Donnelly (autoabs = 1-thetaij)
         end
     end 
 %% Mécanismes indépendants de la densité des 1s
@@ -147,17 +147,20 @@ for t=1:length(Te)
 
     
 %% Mécanismes dépendant de la densité des 1s    
-[Depop2p,DepopRadFond,PopAutoAbs,DepopMix,PopMix,DepopSuperelestique,DepopIonisation,DepopNeutre,PopUpDown,PopNeutre] = TeDepopulation_Metastable_TRG(t+IndexOffset-1,gaz,ng,ne,Aij1s,Thetaij_1s,rate1s_2p,rateQuenching,rateNeutral,Br2p,nm_Ar);
+[Depop2p,DepopRadFond,PopAutoAbs,DepopMix,PopMix,DepopSuperelestique,DepopIonisation,DepopNeutre,PopUpDown] = TeDepopulation_Metastable_TRG(t+IndexOffset-1,gaz,ng,ne,Aij1s,Thetaij_1s,rate1s_2p,rateQuenching,rateNeutral,Br2p,nm_Ar);
 
-depopulation1s=Depop2p+DepopRadFond-PopAutoAbs+DepopMix-PopMix+DepopSuperelestique+DepopIonisation + DepopNeutre - PopUpDown;
-population1s=PopFond+PopNeutre;
+depopulation1s=Depop2p+DepopMix-PopMix+DepopSuperelestique+DepopIonisation-PopUpDown+DepopNeutre;
+population1s=PopFond;
 % DepopNeutre;
 %% Obtention de la densité des niveaux pour avoir l'etat stationnaire depopulation=population
 
 n1sX=linsolve(depopulation1s,population1s);
 %n1sX(2)=0; %negliger les résonnant
 %n1sX(4)=0; %negliger les résonnant
+%donc la densité des résonant c'est les gains-perte * ce qui est autoabs
 
+n1sX(2)=n1sX(2)*Thetaij_1s(2);
+n1sX(4)=n1sX(4)*Thetaij_1s(4);
 
 densite1s(t,:)=n1sX;
 

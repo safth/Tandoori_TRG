@@ -8,25 +8,9 @@ function [rateGround_1s,rateGround_2p,rate1s_2p,rateQuenching,rateNeutral,sig_ra
 %% ============== Préchargement de variables ==============
    %Taux de réactions pour Te=0.05eV jusquà 10eV par step de 0.001eV
    % #gaz 3=Ar 2=Ne, 4=Kr, 5=Xe
-   load Allrates1s_2p.mat        %Allrates1s_2p(#gas,1sy,2px,Te)
-%                 load Allrates1s_2p_LXCAT.mat %pour pierre
-   load AllratesGround_1s.mat    %AllratesGround_1s(#gas,1sx,Te)
-%                 load AllratesGround_1s_LXCAT.mat %pour pierre
-   load AllratesQuenching_1s.mat %AllratesQuenching_1s(#gas,1py,1px,Te)
-  %               load AllratesQuenching_1s_LXCAT.mat %pour pierre
-   load Allrates_neutral.mat     %Allrates_neutral(#gas qui quench,#gas qui se fait quencher)
-   if ChoixHautePression==0
-      load AllratesGround_2p.mat    %AllratesGround_2p(#gas,2Px,Te)
-   elseif ChoixHautePression==1 %si on est à Haute pression partielles d'Argon (>1mtorr)
-      load AllratesGround_2p_HighP.mat    %AllratesGround_2p(#gas,2Px,Te)
-   %   load AllratesGround_2p_HighP_TEOES.mat 
-      AllratesGround_2p=AllratesGround_2p_HighP;
-   end
-     
-%load Allrates1s_2p_TEOES.mat 
-%load AllratesGround_1s_TEOES.mat
-%load AllratesQuenching_1s_TEOES.mat
-%load AllratesGround_2p_TEOES.mat
+
+    global K_1s_2p K_gs_1s K_quench_1s K_neutral K_gs_2p
+
 %% ============== Boucle d'initialisation sur Te pour la sélection des bons taux de réaction ==============
         %Préallocation d'espace
         rateGround_1s=zeros(5,length(Te));
@@ -60,32 +44,32 @@ function [rateGround_1s,rateGround_2p,rate1s_2p,rateQuenching,rateNeutral,sig_ra
         %Puis on sélectionne les taux du fondamental aux 1s via impact électronique
 
         for l=1:pas:5
-            rateGround_1s(l,j)=AllratesGround_1s(e,gaz,l,position);
+            rateGround_1s(l,j)=K_gs_1s(e,gaz,l,position);
         end 
 
             
 
         %...les taux du fondamental aux 2p via impact électronique(10 niveaux=1:10)
         for l=1:10
-            rateGround_2p(l,j)=AllratesGround_2p(e,gaz,l,position);
+            rateGround_2p(l,j)=K_gs_2p(e,gaz,l,position);
         end 
 
         %...les taux des 1s aux 2p via impact électronique
         for k=1:pas:5         %Boucle sur les 1s
             for l=1:10    %Boucle sur les 2p
-                rate1s_2p(k,l,j)=Allrates1s_2p(e,gaz,k,l,position);
+                rate1s_2p(k,l,j)=K_1s_2p(e,gaz,k,l,position);
             end
         end
         
          %...et les taux de quenching des 1s par impact électronique (mixing, collision superélastique et ionisation)
         for k=1:pas:5                       %Boucle sur les 1s
             for l=1:7                  %Boucle sur les 1s; 6=coll superélastique, 7=ionisation
-                rateQuenching(k,l,j)=AllratesQuenching_1s(e,gaz,k,l,position);
+                rateQuenching(k,l,j)=K_quench_1s(e,gaz,k,l,position);
             end
         end
     end
     %Constant pour tout Te, quenching des 1s par les autres gaz présents (mat 5X5)
-    rateNeutral=rates_neutral(:,gaz);
+    rateNeutral=K_neutral(:,gaz);
     
 %% Correction par les Fudge Factor de Donnelly Teoes 2007 (Les fudges sont seulement pour les transitions ground -> 2P et 1s -> 2P)
 [FUDGEground_2P,FUDGE1s_2P] = TeFudgefactor_TRG(gaz);
@@ -102,7 +86,7 @@ end
     
     %% Ajout des incertitudes sur les Taux de réactions.
     %selon Donnelly Teoes 2007
-    % Toutes les Gas  Rates_neutral            = +/- 25%
+    % Toutes les Gas  K_neutral            = +/- 25%
     % Ne, Ar, Kr, Xe  Gs -> 2P                 = +/- 15% x
     % Ne, Ar, Kr      1s -> 2P                 = +/- 25% x
     % Xe              1s -> 2P                 = +/- 45% x
@@ -131,5 +115,5 @@ end
 
     
     
- clear Allrates1s_2p AllratesGround_2p AllratesGround_1s AllratesQuenching_1s rates_neutral position
+ clear K_1s_2p K_gs_2p K_gs_1s K_quench_1s K_neutral position
    
