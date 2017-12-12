@@ -249,7 +249,26 @@ disp ('Calcul de l''intensité théorique des raies...')
     Pertes1s   =zeros(5,length(Ne),length(Te),5,6);
     
     
-
+    %% sélection des taux de réactions
+    global K_1s_2p K_gs_1s K_quench_1s K_neutral K_gs_2p
+    load Allrates1s_2p.mat 
+    load AllratesGround_1s.mat 
+    load AllratesQuenching_1s.mat
+    load Allrates_neutral.mat
+    if ChoixHautePression==0
+      load AllratesGround_2p.mat    %AllratesGround_2p(#gas,2Px,Te)
+      K_gs_2p = AllratesGround_2p;
+    elseif ChoixHautePression==1 %si on est à Haute pression partielles d'Argon (>1mtorr)
+      load AllratesGround_2p_HighP.mat    %AllratesGround_2p(#gas,2Px,Te)
+      K_gs_2p = AllratesGround_2p_HighP;
+    end
+    
+    K_1s_2p     =Allrates1s_2p;
+    K_gs_1s     =AllratesGround_1s;
+    K_quench_1s =AllratesQuenching_1s;
+    K_neutral   =rates_neutral;
+    
+    
     %% Boucles sur les gaz, éléments théoriques du code.
     wait=0;
     global gaz_i gaz_f
