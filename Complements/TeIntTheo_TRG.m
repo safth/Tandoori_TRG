@@ -150,7 +150,7 @@ for t=1:length(Te)
 [Depop2p,DepopRadFond,PopAutoAbs,DepopMix,PopMix,DepopSuperelestique,DepopIonisation,DepopNeutre,PopUpDown,PopNeutre] = TeDepopulation_Metastable_TRG(t+IndexOffset-1,gaz,ng,ne,Aij1s,Thetaij_1s,rate1s_2p,rateQuenching,rateNeutral,Br2p,nm_Ar);
 
 depopulation1s=Depop2p+DepopRadFond-PopAutoAbs+DepopMix-PopMix+DepopSuperelestique+DepopIonisation + DepopNeutre - PopUpDown;
-population1s=PopFond;
+population1s=PopFond+PopNeutre;
 % DepopNeutre;
 %% Obtention de la densité des niveaux pour avoir l'etat stationnaire depopulation=population
 
@@ -273,7 +273,7 @@ sig_densite1s(t,4)=sig_densite1s(t,5)*densite1s(t,4)/densite1s(t,5);
     [DepopRad2p,PopRad2p,DepopColl2p,DepopColl1s,PopColl2p]=TeDepopulation_TRG(Aij2p,Thetaij,En2px_1s,En2px_2py,ng(gaz));   %Considère desexc. rad. + transfert coll vers le haut et le bas
   
 %% Calcul des processus de population des niveaux 2p via impact électronique sur le fondamental et les niveaux 1s
-    [PopFond2p,PopNm2p,Pop1s]=TePopulation_TRG(t+IndexOffset-1,ng(gaz),ne,n1sX,rate1s_2p,rateGround_2p,gaz);
+    [PopFond2p,PopNm2p,Pop1s,PopAr]=TePopulation_TRG(t+IndexOffset-1,ng(gaz),ne,n1sX,rate1s_2p,rateGround_2p,gaz,nm_Ar);
 
 %% Réorganisation des matrices: Les fonction flipud et rot90 sont utilisées car à priori les matrices contiennent en première position 2p10, 
 %en 2e position 2p9, etc. Elles permettent donc de mettre ce qui correspond à 2p1 en première position, 2p2 en seconde position, etc
@@ -288,7 +288,7 @@ sig_densite1s(t,4)=sig_densite1s(t,5)*densite1s(t,4)/densite1s(t,5);
     %% Obtention de la densité des niveaux pour avoir l'etat stationnaire depopulation=population
     %depopulation=DepopRad2p-PopRad2p+DepopColl2p+DepopColl1s-PopColl2p;
     depopulation=DepopRad2p-PopRad2p; % on prend juste les trans Radiative
-    population=PopNm2p+PopFond2p;
+    population=PopNm2p+PopFond2p+PopAr;
     
     densite2p(t,:)=linsolve(depopulation,population);              %depopulation*density=population
     
@@ -331,7 +331,7 @@ sig_densite1s(t,4)=sig_densite1s(t,5)*densite1s(t,4)/densite1s(t,5);
 %  =======================sur les 2P ========================= 
 %  ===========================================================  
 %  =========================================================== 
-    [sig_PopFond2p,sig_PopNm2p,sig_Pop1s]=TePopulation_TRG(t+IndexOffset-1,ng(gaz),ne,n1sX,sig_rate1s_2p,sig_rateGround_2p,gaz);
+    [sig_PopFond2p,sig_PopNm2p,sig_Pop1,sig_PopAr]=TePopulation_TRG(t+IndexOffset-1,ng(gaz),ne,n1sX,sig_rate1s_2p,sig_rateGround_2p,gaz,nm_Ar);
     [sig_DepopRad2p,sig_PopRad2p,sig_DepopColl2p,sig_DepopColl1s,sig_PopColl2p]=TeDepopulation_TRG(Aij2p,sig_Thetaij,En2px_1s,En2px_2py,ng(gaz));   %Considère desexc. rad. + transfert coll vers le haut et le bas
 
     %Aucune incertitude sur le Depop
