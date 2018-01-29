@@ -166,10 +166,10 @@ densite1s(isnan(densite1s)) = 0 ; %enleve le NaN en 1s1
 
 %% ============== Suivi de l'influence des processus de peuplement et de dépeuplement des niveaux 1s ==============   
 
- GainFond_1s(t,:)      =  100*PopFond                       ./(PopFond + PopAutoAbs*densite1s(t,:)' + PopMix*densite1s(t,:)' + PopUpDown*densite1s(t,:)');
- GainAutoAbs_1s(t,:)   =  100*PopAutoAbs*densite1s(t,:)'    ./(PopFond + PopAutoAbs*densite1s(t,:)' + PopMix*densite1s(t,:)' + PopUpDown*densite1s(t,:)');
- GainMixing_1s(t,:)    =  100*PopMix*densite1s(t,:)'        ./(PopFond + PopAutoAbs*densite1s(t,:)' + PopMix*densite1s(t,:)' + PopUpDown*densite1s(t,:)');
- GainUpdown_1s(t,:)    =  100*PopUpDown*densite1s(t,:)'     ./(PopFond + PopAutoAbs*densite1s(t,:)' + PopMix*densite1s(t,:)' + PopUpDown*densite1s(t,:)');
+ GainFond_1s(t,:)      =  100*PopFond                       ./(PopFond + PopAr_1s + PopAutoAbs*densite1s(t,:)' + PopMix*densite1s(t,:)' + PopUpDown*densite1s(t,:)');
+ GainAutoAbs_1s(t,:)   =  100*PopAutoAbs*densite1s(t,:)'    ./(PopFond + PopAr_1s + PopAutoAbs*densite1s(t,:)' + PopMix*densite1s(t,:)' + PopUpDown*densite1s(t,:)');
+ GainMixing_1s(t,:)    =  100*PopMix*densite1s(t,:)'        ./(PopFond + PopAr_1s + PopAutoAbs*densite1s(t,:)' + PopMix*densite1s(t,:)' + PopUpDown*densite1s(t,:)');
+ GainUpdown_1s(t,:)    =  100*PopUpDown*densite1s(t,:)'     ./(PopFond + PopAr_1s + PopAutoAbs*densite1s(t,:)' + PopMix*densite1s(t,:)' + PopUpDown*densite1s(t,:)');
  PerteVers2p_1s(t,:)     =  100*Depop2p*densite1s(t,:)'             ./(Depop2p*densite1s(t,:)' + DepopRadFond*densite1s(t,:)' + DepopMix*densite1s(t,:)' + DepopSuperelestique*densite1s(t,:)' + DepopIonisation*densite1s(t,:)' + DepopNeutre*densite1s(t,:)');
  PerteRad_1s(t,:)        =  100*DepopRadFond*densite1s(t,:)'        ./(Depop2p*densite1s(t,:)' + DepopRadFond*densite1s(t,:)' + DepopMix*densite1s(t,:)' + DepopSuperelestique*densite1s(t,:)' + DepopIonisation*densite1s(t,:)' + DepopNeutre*densite1s(t,:)');
  PerteMixinxg_1s(t,:)    =  100*DepopMix*densite1s(t,:)'            ./(Depop2p*densite1s(t,:)' + DepopRadFond*densite1s(t,:)' + DepopMix*densite1s(t,:)' + DepopSuperelestique*densite1s(t,:)' + DepopIonisation*densite1s(t,:)' + DepopNeutre*densite1s(t,:)');
@@ -212,7 +212,7 @@ for j=2:5 % boucle sur les 1s à résoudre
     end
     perte(t,j)        =    Depop2p(j,j)+DepopRadFond(j,j)+DepopMix(j,j)+DepopSuperelestique(j,j)+DepopIonisation(j,j)+DepopNeutre(j,j);
     sig_perte(t,j)    =    sqrt(sig_Depop2p(j,j)^2+sig_DepopRadFond(j,j)^2+sig_DepopMix(j,j)^2+sig_DepopSuperelestique(j,j)^2+sig_DepopIonisation(j,j)^2+sig_DepopNeutre(j,j)^2);
-    gain(t,j)         =    gain(t,j)+PopFond(j);
+    gain(t,j)         =    gain(t,j)+PopFond(j) + PopAr_1s(j);
     sig_gain(t,j)     =    sqrt(sig_gain(t,j)+sig_PopFond(j).^2);
 end    
 clear i j
@@ -294,10 +294,10 @@ sig_densite1s(t,4)=sig_densite1s(t,5)*densite1s(t,4)/densite1s(t,5);
     
     
     %% ============== Suivi de l'influence des processus de peuplement et de dépeuplement des niveaux 2p ==============   
-    GainFond(t,:)=   100*PopFond2p                 ./(PopColl2p*densite2p(t,:)'+PopRad2p*densite2p(t,:)'+PopFond2p+PopNm2p);
-    GainNm(t,:)=     100*PopNm2p                   ./(PopColl2p*densite2p(t,:)'+PopRad2p*densite2p(t,:)'+PopFond2p+PopNm2p);
-    GainColl2p(t,:)= 100*PopColl2p*densite2p(t,:)'  ./(PopColl2p*densite2p(t,:)'+PopRad2p*densite2p(t,:)'+PopFond2p+PopNm2p);    
-    GainRadTrap(t,:)=100*PopRad2p*densite2p(t,:)'     ./(PopColl2p*densite2p(t,:)'+PopRad2p*densite2p(t,:)'+PopFond2p+PopNm2p);
+    GainFond(t,:)=   100*PopFond2p                 ./(PopColl2p*densite2p(t,:)'+PopRad2p*densite2p(t,:)'+PopFond2p+PopNm2p+PopAr);
+    GainNm(t,:)=     100*PopNm2p                   ./(PopColl2p*densite2p(t,:)'+PopRad2p*densite2p(t,:)'+PopFond2p+PopNm2p+PopAr);
+    GainColl2p(t,:)= 100*PopColl2p*densite2p(t,:)'  ./(PopColl2p*densite2p(t,:)'+PopRad2p*densite2p(t,:)'+PopFond2p+PopNm2p+PopAr);    
+    GainRadTrap(t,:)=100*PopRad2p*densite2p(t,:)'     ./(PopColl2p*densite2p(t,:)'+PopRad2p*densite2p(t,:)'+PopFond2p+PopNm2p+PopAr);
     
     PerteRadiatif(t,:)= (100*DepopRad2p*densite2p(t,:)')./((DepopRad2p+DepopColl2p+DepopColl1s)*densite2p(t,:)');
     PerteColl2p(t,:)=(100*DepopColl2p*densite2p(t,:)')./((DepopRad2p+DepopColl2p+DepopColl1s)*densite2p(t,:)');
@@ -344,7 +344,7 @@ for j=1:10 % boucle sur les 2P à résoudre
       sig_gain_2P_a(j) = sig_gain_2P_a(j) + (sig_densite1s(t,i)*Pop1s(j,i))^2;
     end
     sig_gain_2P(t,11-j) = sqrt(sig_gain_2P_a(j) + sig_PopFond2p(j)^2 + sig_PopNm2p(j)^2 + (densite2p(t,j)*sig_PopRad2p(j))^2 + (sig_densite2p(t,j)*PopRad2p(j))^2);%11-j car gain(1)=2p10 et gain(10)=2p1
-    gain_2P(t,j) = PopFond2p(j)+ PopNm2p(j) + densite2p(t,j)*PopRad2p(j);
+    gain_2P(t,j) = PopFond2p(j)+ PopNm2p(j) + densite2p(t,j)*PopRad2p(j)+PopAr(j);
    
 end    
 clear i j
