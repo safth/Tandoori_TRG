@@ -3,7 +3,7 @@ function [PopFond,Pop1s,sig_Pop1s,PopAr]=TePopulation_TRG(i,ng,ne,n1s,rate1s_2p,
 
 %% Gain de population des niveaux 2p par impact électronique sur un neutre dans son niveau fondamental 
 
-PopFond   =  ne*ng*[rateGround_2p(10,i);  %2p10
+PopFond   =  ne*ng(gaz)*[rateGround_2p(10,i);  %2p10
                     rateGround_2p(9,i);   %2p9
                     rateGround_2p(8,i);   %2p8
                     rateGround_2p(7,i);   %2p7
@@ -43,16 +43,16 @@ sig_Pop1s = ne*[0 rate1s_2p(2,10,i) rate1s_2p(3,10,i) rate1s_2p(4,10,i) rate1s_2
 
 %% population par le transfert d'excitation de l'argon. % nm_Ar(1,1,i,5) i c'Est Te et 5 parceque c'est le 1s5 qui peuple
 if gaz == 4
-    PopAr = nm_Ar(1,1,i,5)*ng(gaz)*    [0        ; %2p10
-                                        0        ; %2p9 
-                                        0        ; %2p8
-                                        0.64e-18 ; %2p7
-                                        5.6e-18  ; %2p6 
-                                        0        ; %2p5 
-                                        0        ; %2p4 
-                                        0        ; %2p3 
-                                        0        ; %2p2 
-                                        0]       ; %2p1
+    PopAr = nm_Ar(1,1,i,5)*ng(gaz)*[0        ; %2p10
+                                    0        ; %2p9 
+                                    0        ; %2p8
+                                    0.64e-18 ; %2p7
+                                    5.6e-18  ; %2p6 
+                                    0        ; %2p5 
+                                    0        ; %2p4 
+                                    0        ; %2p3 
+                                    0        ; %2p2 
+                                    0]       ; %2p1
 else
     PopAr  =       [0        ; %2p10
                     0        ; %2p9 

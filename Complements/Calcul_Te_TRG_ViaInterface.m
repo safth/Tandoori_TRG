@@ -240,12 +240,12 @@ disp ('Calcul de l''intensité théorique des raies...')
     VanDerWaals =zeros(length(Ne),length(Te),length(E));
     Resonant    =zeros(length(Ne),length(Te),length(E));
 
-    Gains2p    =zeros(5,length(Ne),length(Te),10,4); %gaz #1à5 avec 10 2p chacuns
+    Gains2p    =zeros(5,length(Ne),length(Te),10,5); %gaz #1à5 avec 10 2p chacuns
     Pertes2p   =zeros(5,length(Ne),length(Te),10,3);
     densite2p     =zeros(5,length(Ne),length(Te),10);
     ContributionFond    =zeros(5,length(Ne),length(Te),10);
     densite1s     =zeros(5,length(Ne),length(Te),5);
-    Gains1s    =zeros(5,length(Ne),length(Te),5,4); %gaz #1à5 avec 10 2p chacuns
+    Gains1s    =zeros(5,length(Ne),length(Te),5,5); %gaz #1à5 avec 10 2p chacuns
     Pertes1s   =zeros(5,length(Ne),length(Te),5,6);
     
     
@@ -321,7 +321,7 @@ for gaz=gaz_i:gaz_f %On fait le calcul théorique de l'intensité de raies pour 2=
             end  
             for l=1:10 
                 %for k=1:size(Gains_2p,1)% Pour chaque niveau...         
-                Gains2p(gaz,j,i,l,:)=Gains_2p(:,i,l);        %1=fond,2=Nm,3=coll2P,4=radtrap
+                Gains2p(gaz,j,i,l,:)=Gains_2p(:,i,l);        %1=fond,2=Nm,3=coll2P,4=radtrap, 5 = Transfert Radiatif 
                 Pertes2p(gaz,j,i,l,:)=Pertes_2p(:,i,l);      % 1=rad 2=coll2p 3=coll1s
                 %end
                 densite2p(gaz,j,i,l)=densite_2p(i,l);            % Densité des 2p

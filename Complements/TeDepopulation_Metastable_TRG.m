@@ -88,8 +88,8 @@ if gaz == 4
     PopAr = nm_Ar(1,1,i,5)*ng(gaz)*[0 ; % rajouter n_g et sum(n_metast_Argon) J
                                     0;
                                     0;
-                                    5.6e-18*Br2p(6,4)+0.64e-18*Br2p(7,4) ; % 0.64e-18 ; %2p7
-                                    5.6e-18*Br2p(6,5)+0.64e-18*Br2p(7,5)]; % 5.6e-18  ; %2p6   
+                                    5.6e-18*Br2p(4,6)+0.64e-18*Br2p(4,7) ; % 0.64e-18 ; %2p7
+                                    5.6e-18*Br2p(5,6)+0.64e-18*Br2p(5,7)]; % 5.6e-18  ; %2p6   
 else
     PopAr=[0;
            0;

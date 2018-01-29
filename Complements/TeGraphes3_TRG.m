@@ -20,8 +20,8 @@ for gaz=gaz_i:gaz_f
     for l=1:10
    Population2p(gaz,l,1)=Gains2p(gaz,1,1,l,1); %Population impact électronique sur le fondamental
    Population2p(gaz,l,2)=Gains2p(gaz,1,1,l,2); %Population impact électronique sur les 1s
-   Population2p(gaz,l,3)=Gains2p(gaz,1,1,l,3); %Population transfert collisionnel entre les 2p
-   Population2p(gaz,l,4)=Gains2p(gaz,1,1,l,4); %Population ré-absorption de photon
+   Population2p(gaz,l,3)=Gains2p(gaz,1,1,l,4); %Population ré-absorption de photon
+   Population2p(gaz,l,4)=Gains2p(gaz,1,1,l,5); %Transfert radiatif du Ar(1s5)
    Depopulation2p(gaz,l,1)=Pertes2p(gaz,1,1,l,1);     %Dépopulation desexcitation radiative
    Depopulation2p(gaz,l,2)=Pertes2p(gaz,1,1,l,2);%/(Pertes(1,l)+Pertes(2,l)+Pertes(3,l));      %Dépopulation transfert collisionnel entre les 2p
    Depopulation2p(gaz,l,3)=Pertes2p(gaz,1,1,l,3);%/(Pertes(1,l)+Pertes(2,l)+Pertes(3,l));      %Dépopulation transfert collisionnel vers les 1s
@@ -32,8 +32,8 @@ for gaz=gaz_i:gaz_f
     for l=1:5
    Population1s(gaz,l,1)=Gains1s(gaz,1,1,l,1);
    Population1s(gaz,l,2)=Gains1s(gaz,1,1,l,2);
-   Population1s(gaz,l,3)=Gains1s(gaz,1,1,l,3);
-   Population1s(gaz,l,4)=Gains1s(gaz,1,1,l,4);
+   Population1s(gaz,l,3)=Gains1s(gaz,1,1,l,3)+Gains1s(gaz,1,1,l,4); %mix pis updown c'est le meme mécanisme
+   Population1s(gaz,l,4)=Gains1s(gaz,1,1,l,5);
    Depopulation1s(gaz,l,1)=Pertes1s(gaz,1,1,l,1);
    Depopulation1s(gaz,l,2)=Pertes1s(gaz,1,1,l,2);
    Depopulation1s(gaz,l,3)=Pertes1s(gaz,1,1,l,3);
@@ -82,7 +82,7 @@ for gaz=gaz_i:gaz_f
     xlim([0.4 10.6]);
     title('Contribution des mécanismes de population des 2p','fontweight','bold')
     xlabel('Niveau 2p_x','FontSize',11,'fontweight','bold');
-    lgnd=legend('Coll e^- - fond','Coll e^- - 1s','Coll 2p_x->2p_y','Auto-abs','Orientation','horizontal','Location','north');
+    lgnd=legend('Coll e^- - fond','Coll e^- - 1s','Auto-abs','Transfert Ar(1s_5)','Orientation','horizontal','Location','north');
     set(lgnd,'FontSize',8)
 %     hold on
 %     bar11=bar(1:10,pop2,0.35,'stacked');
@@ -147,7 +147,7 @@ for gaz=gaz_i:gaz_f
     xlim([1 6]);
     title('Contribution des mécanismes de population des 1s','fontweight','bold')
     xlabel('Niveau 1s_x','FontSize',11,'fontweight','bold');
-    lgnd=legend('Coll e^- - fond','Auto-abs','Mixing','UpDown','Orientation','horizontal','Location','north');
+    lgnd=legend('Coll e^- - fond','Auto-abs','Mixing','Transfert Ar(1s_5)','Orientation','horizontal','Location','north');
     set(lgnd,'FontSize',8)
 
     clear pop1 

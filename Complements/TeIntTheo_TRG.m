@@ -66,6 +66,7 @@ function [densite1s,sig_densite1s,densite2p,sig_densite2p,Gains2p,Pertes2p,Emiss
     GainNm             =zeros(length(Te),10);
     GainColl2p         =zeros(length(Te),10);
     GainRadTrap        =zeros(length(Te),10);
+    GainAr             =zeros(length(Te),10);
     PerteRadiatif      =zeros(length(Te),10);
     PerteColl2p        =zeros(length(Te),10);
     PerteColl1s        =zeros(length(Te),10);
@@ -76,6 +77,7 @@ function [densite1s,sig_densite1s,densite2p,sig_densite2p,Gains2p,Pertes2p,Emiss
     GainAutoAbs_1s     =zeros(length(Te),5);
     GainMixing_1s      =zeros(length(Te),5);
     GainUpdown_1s      =zeros(length(Te),5);
+    GainPopAr_1s       =zeros(length(Te),5);
     PerteVers2p_1s     =zeros(length(Te),5);
     PerteRad_1s        =zeros(length(Te),5);
     PerteMixinxg_1s    =zeros(length(Te),5);
@@ -170,6 +172,7 @@ densite1s(isnan(densite1s)) = 0 ; %enleve le NaN en 1s1
  GainAutoAbs_1s(t,:)   =  100*PopAutoAbs*densite1s(t,:)'    ./(PopFond + PopAr_1s + PopAutoAbs*densite1s(t,:)' + PopMix*densite1s(t,:)' + PopUpDown*densite1s(t,:)');
  GainMixing_1s(t,:)    =  100*PopMix*densite1s(t,:)'        ./(PopFond + PopAr_1s + PopAutoAbs*densite1s(t,:)' + PopMix*densite1s(t,:)' + PopUpDown*densite1s(t,:)');
  GainUpdown_1s(t,:)    =  100*PopUpDown*densite1s(t,:)'     ./(PopFond + PopAr_1s + PopAutoAbs*densite1s(t,:)' + PopMix*densite1s(t,:)' + PopUpDown*densite1s(t,:)');
+ GainPopAr_1s(t,:)     =  100*PopAr_1s                      ./(PopFond + PopAr_1s + PopAutoAbs*densite1s(t,:)' + PopMix*densite1s(t,:)' + PopUpDown*densite1s(t,:)');
  PerteVers2p_1s(t,:)     =  100*Depop2p*densite1s(t,:)'             ./(Depop2p*densite1s(t,:)' + DepopRadFond*densite1s(t,:)' + DepopMix*densite1s(t,:)' + DepopSuperelestique*densite1s(t,:)' + DepopIonisation*densite1s(t,:)' + DepopNeutre*densite1s(t,:)');
  PerteRad_1s(t,:)        =  100*DepopRadFond*densite1s(t,:)'        ./(Depop2p*densite1s(t,:)' + DepopRadFond*densite1s(t,:)' + DepopMix*densite1s(t,:)' + DepopSuperelestique*densite1s(t,:)' + DepopIonisation*densite1s(t,:)' + DepopNeutre*densite1s(t,:)');
  PerteMixinxg_1s(t,:)    =  100*DepopMix*densite1s(t,:)'            ./(Depop2p*densite1s(t,:)' + DepopRadFond*densite1s(t,:)' + DepopMix*densite1s(t,:)' + DepopSuperelestique*densite1s(t,:)' + DepopIonisation*densite1s(t,:)' + DepopNeutre*densite1s(t,:)');
@@ -273,7 +276,7 @@ sig_densite1s(t,4)=sig_densite1s(t,5)*densite1s(t,4)/densite1s(t,5);
     [DepopRad2p,PopRad2p,DepopColl2p,DepopColl1s,PopColl2p]=TeDepopulation_TRG(Aij2p,Thetaij,En2px_1s,En2px_2py,ng(gaz));   %Considère desexc. rad. + transfert coll vers le haut et le bas
   
 %% Calcul des processus de population des niveaux 2p via impact électronique sur le fondamental et les niveaux 1s
-    [PopFond2p,PopNm2p,Pop1s,PopAr]=TePopulation_TRG(t+IndexOffset-1,ng(gaz),ne,n1sX,rate1s_2p,rateGround_2p,gaz,nm_Ar);
+    [PopFond2p,PopNm2p,Pop1s,PopAr]=TePopulation_TRG(t+IndexOffset-1,ng,ne,n1sX,rate1s_2p,rateGround_2p,gaz,nm_Ar);
 
 %% Réorganisation des matrices: Les fonction flipud et rot90 sont utilisées car à priori les matrices contiennent en première position 2p10, 
 %en 2e position 2p9, etc. Elles permettent donc de mettre ce qui correspond à 2p1 en première position, 2p2 en seconde position, etc
@@ -284,6 +287,7 @@ sig_densite1s(t,4)=sig_densite1s(t,5)*densite1s(t,4)/densite1s(t,5);
     PopColl2p=rot90(PopColl2p,2);
     PopFond2p=flipud(PopFond2p);
     PopNm2p=flipud(PopNm2p);
+    PopAr=flipud(PopAr);
     
     %% Obtention de la densité des niveaux pour avoir l'etat stationnaire depopulation=population
     %depopulation=DepopRad2p-PopRad2p+DepopColl2p+DepopColl1s-PopColl2p;
@@ -296,8 +300,9 @@ sig_densite1s(t,4)=sig_densite1s(t,5)*densite1s(t,4)/densite1s(t,5);
     %% ============== Suivi de l'influence des processus de peuplement et de dépeuplement des niveaux 2p ==============   
     GainFond(t,:)=   100*PopFond2p                 ./(PopColl2p*densite2p(t,:)'+PopRad2p*densite2p(t,:)'+PopFond2p+PopNm2p+PopAr);
     GainNm(t,:)=     100*PopNm2p                   ./(PopColl2p*densite2p(t,:)'+PopRad2p*densite2p(t,:)'+PopFond2p+PopNm2p+PopAr);
-    GainColl2p(t,:)= 100*PopColl2p*densite2p(t,:)'  ./(PopColl2p*densite2p(t,:)'+PopRad2p*densite2p(t,:)'+PopFond2p+PopNm2p+PopAr);    
-    GainRadTrap(t,:)=100*PopRad2p*densite2p(t,:)'     ./(PopColl2p*densite2p(t,:)'+PopRad2p*densite2p(t,:)'+PopFond2p+PopNm2p+PopAr);
+    GainColl2p(t,:)= 100*PopColl2p*densite2p(t,:)' ./(PopColl2p*densite2p(t,:)'+PopRad2p*densite2p(t,:)'+PopFond2p+PopNm2p+PopAr);    
+    GainRadTrap(t,:)=100*PopRad2p*densite2p(t,:)'  ./(PopColl2p*densite2p(t,:)'+PopRad2p*densite2p(t,:)'+PopFond2p+PopNm2p+PopAr);
+    GainAr(t,:)  =   100*PopAr                     ./(PopColl2p*densite2p(t,:)'+PopRad2p*densite2p(t,:)'+PopFond2p+PopNm2p+PopAr);
     
     PerteRadiatif(t,:)= (100*DepopRad2p*densite2p(t,:)')./((DepopRad2p+DepopColl2p+DepopColl1s)*densite2p(t,:)');
     PerteColl2p(t,:)=(100*DepopColl2p*densite2p(t,:)')./((DepopRad2p+DepopColl2p+DepopColl1s)*densite2p(t,:)');
@@ -331,7 +336,7 @@ sig_densite1s(t,4)=sig_densite1s(t,5)*densite1s(t,4)/densite1s(t,5);
 %  =======================sur les 2P ========================= 
 %  ===========================================================  
 %  =========================================================== 
-    [sig_PopFond2p,sig_PopNm2p,sig_Pop1,sig_PopAr]=TePopulation_TRG(t+IndexOffset-1,ng(gaz),ne,n1sX,sig_rate1s_2p,sig_rateGround_2p,gaz,nm_Ar);
+    [sig_PopFond2p,sig_PopNm2p,sig_Pop1,sig_PopAr]=TePopulation_TRG(t+IndexOffset-1,ng,ne,n1sX,sig_rate1s_2p,sig_rateGround_2p,gaz,nm_Ar);
     [sig_DepopRad2p,sig_PopRad2p,sig_DepopColl2p,sig_DepopColl1s,sig_PopColl2p]=TeDepopulation_TRG(Aij2p,sig_Thetaij,En2px_1s,En2px_2py,ng(gaz));   %Considère desexc. rad. + transfert coll vers le haut et le bas
 
     %Aucune incertitude sur le Depop
@@ -555,9 +560,9 @@ end %Fin Boucle Te
 clear Thetaij depopulation Dopp VDWaals Res
 
 %% Regroupement de l'information pour faciliter l'exportation et la lisibilité
-    Gains2p=zeros(4,length(Te),10);
+    Gains2p=zeros(5,length(Te),10);
     Pertes2p=zeros(3,length(Te),10);
-    Gains1s=zeros(4,length(Te),5);
+    Gains1s=zeros(5,length(Te),5);
     Pertes1s=zeros(6,length(Te),5);
     Emission=zeros(6,length(Te),index);
     
@@ -570,6 +575,7 @@ clear Thetaij depopulation Dopp VDWaals Res
             Gains2p(2,i,j)=GainNm(i,j);
             Gains2p(3,i,j)=GainColl2p(i,j);
             Gains2p(4,i,j)=GainRadTrap(i,j);
+            Gains2p(5,i,j)=GainAr(i,j);
             Pertes2p(1,i,j)=PerteRadiatif(i,j);
             Pertes2p(2,i,j)=PerteColl2p(i,j);
             Pertes2p(3,i,j)=PerteColl1s(i,j);
@@ -579,6 +585,7 @@ clear Thetaij depopulation Dopp VDWaals Res
             Gains1s(2,i,j)=GainAutoAbs_1s(i,j);
             Gains1s(3,i,j)=GainMixing_1s(i,j);
             Gains1s(4,i,j)=GainUpdown_1s(i,j);
+            Gains1s(5,i,j)=GainPopAr_1s(i,j);
             Pertes1s(1,i,j)=PerteRad_1s(i,j);
             Pertes1s(2,i,j)=PerteVers2p_1s(i,j);
             Pertes1s(3,i,j)=PerteMixinxg_1s(i,j);
