@@ -1,4 +1,4 @@
-function [Depop2p,DepopRadFond,PopAutoAbs,DepopMix,PopMix,DepopSuperelestique,DepopIonisation,DepopNeutre,PopUpDown,PopNeutre] = ...
+function [Depop2p,DepopRadFond,PopAutoAbs,DepopMix,PopMix,DepopSuperelestique,DepopIonisation,DepopNeutre,PopUpDown,PopAr] = ...
     TeDepopulation_Metastable_TRG(i,gaz,ng,ne,Aij1s,Thetaij,rate1s_2p,rateQuenching,rateNeutral,Br2p,nm_Ar)
 
 %% 1) Depop impact électronique vers les 2p
@@ -61,12 +61,7 @@ global nu_hmdso ;
                  0 0 0 sum(ng'.*rateNeutral)+nu_hmdso 0;
                  0 0 0 0 sum(ng'.*rateNeutral)+nu_hmdso];
 
-       
-PopNeutre = sum(nm_Ar(1,1,i,:))*ng(gaz)*(1/2)*[0 ; % rajouter n_g et sum(n_metast_Argon) J
-                                               0;
-                                               1e-16 ;
-                                               0  ;
-                                               1e-16];
+
 
 %% 7) Pop venant des 2P se désexcitant apres impact avec un autre 1s
   %calcul fait par donnelly lorsqu'il résoud les 1s!!!
@@ -86,4 +81,23 @@ PopUpDown = ne*[0         0           0               0              0     ; %RI
                  0 Cascade(3,2)        0           Cascade(3,4)   Cascade(3,5); %1s3
                  0 Cascade(4,2)    Cascade(4,3)        0          Cascade(4,5); %1s4
                  0 Cascade(5,2)    Cascade(5,3)    Cascade(5,4)       0      ]; %1s5
+             
+             
+%% 8) Transfert d'excitation pour le Kr de l' Ar(1s5)     
+if gaz == 4
+    PopAr = nm_Ar(1,1,i,5)*ng(gaz)*[0 ; % rajouter n_g et sum(n_metast_Argon) J
+                                    0;
+                                    0;
+                                    5.6e-18*Br2p(6,4)+0.64e-18*Br2p(7,4) ; % 0.64e-18 ; %2p7
+                                    5.6e-18*Br2p(6,5)+0.64e-18*Br2p(7,5)]; % 5.6e-18  ; %2p6   
+else
+    PopAr=[0;
+           0;
+           0;
+           0;
+           0];
+    
+end
 
+end                                                                 
+                                        

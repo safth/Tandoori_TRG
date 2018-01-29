@@ -43,7 +43,7 @@ sig_Pop1s = ne*[0 rate1s_2p(2,10,i) rate1s_2p(3,10,i) rate1s_2p(4,10,i) rate1s_2
 
 %% population par le transfert d'excitation de l'argon. % nm_Ar(1,1,i,5) i c'Est Te et 5 parceque c'est le 1s5 qui peuple
 if gaz == 4
-    PopAr = nm_Ar(1,1,i,5)*ng(gaz)*[0        ; %2p10
+    PopAr = nm_Ar(1,1,i,5)*ng(gaz)*    [0        ; %2p10
                                         0        ; %2p9 
                                         0        ; %2p8
                                         0.64e-18 ; %2p7
@@ -54,7 +54,7 @@ if gaz == 4
                                         0        ; %2p2 
                                         0]       ; %2p1
 else
-    PopAr  =   [0        ; %2p10
+    PopAr  =       [0        ; %2p10
                     0        ; %2p9 
                     0        ; %2p8
                     0        ; %2p7
