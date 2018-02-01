@@ -245,6 +245,8 @@ disp ('Calcul de l''intensité théorique des raies...')
     densite2p     =zeros(5,length(Ne),length(Te),10);
     ContributionFond    =zeros(5,length(Ne),length(Te),10);
     densite1s     =zeros(5,length(Ne),length(Te),5);
+    sig_densite1s     =zeros(5,length(Ne),length(Te),5);
+
     Gains1s    =zeros(5,length(Ne),length(Te),5,5); %gaz #1à5 avec 10 2p chacuns
     Pertes1s   =zeros(5,length(Ne),length(Te),5,6);
     
@@ -305,7 +307,7 @@ for gaz=gaz_i:gaz_f %On fait le calcul théorique de l'intensité de raies pour 2=
         waitbar(wait/(length(gaz_i:gaz_f)*length(Ne)),h,'Calcul théorique') 
         wait=wait+1;
         %% Calcul du bilan de population: gains=pertes
-       [densite_1s,sig_densite1s,densite_2p,sig_density,Gains_2p,Pertes_2p,Emission,PopFond,Mecanisms,energie_1s,energie_2p,Gains_1s,Pertes_1s]=TeIntTheo_TRG(gaz,Ne(j),Te,rateGround_1s,rateGround_2p,rate1s_2p,rateQuenching,rateNeutral,sig_rateGround_1s,sig_rateGround_2p,sig_rate1s_2p,sig_rateQuenching,sig_rateNeutral,Tg,longueur,AllIntegral,P,1,0,flow,ChoixAutoabs,sig_longueur,densite1s(3,j,:,:));
+       [densite_1s,sig_densite_1s,densite_2p,sig_density,Gains_2p,Pertes_2p,Emission,PopFond,Mecanisms,energie_1s,energie_2p,Gains_1s,Pertes_1s]=TeIntTheo_TRG(gaz,Ne(j),Te,rateGround_1s,rateGround_2p,rate1s_2p,rateQuenching,rateNeutral,sig_rateGround_1s,sig_rateGround_2p,sig_rate1s_2p,sig_rateQuenching,sig_rateNeutral,Tg,longueur,AllIntegral,P,1,0,flow,ChoixAutoabs,sig_longueur,densite1s(3,j,:,:),sig_densite1s(3,j,:,:));
        %% Extraction et mise en mémoire des données pour chaque fichier, densité électronique et Te
 
        for i=1:length(Te)
@@ -332,6 +334,7 @@ for gaz=gaz_i:gaz_f %On fait le calcul théorique de l'intensité de raies pour 2=
                  Gains1s(gaz,j,i,l,:)=Gains_1s(:,i,l);  
                  Pertes1s(gaz,j,i,l,:)=Pertes_1s(:,i,l); 
                  densite1s(gaz,j,i,l)=densite_1s(i,l);
+                 sig_densite1s(gaz,j,i,l)=sig_densite_1s(i,l);
              end
              energie1s(gaz,:)=energie_1s(:);
              energie2p(gaz,:)=energie_2p(:);

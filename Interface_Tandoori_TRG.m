@@ -417,7 +417,7 @@ end
          flow(3) = 0.2*str2double(get(handles.TRGflow,'String'));% 20% Ar
          flow(4) = 0.2*str2double(get(handles.TRGflow,'String'));% 20% Kr
          flow(5) = 0.2*str2double(get(handles.TRGflow,'String'));% 20% Xe
-           
+
          %Ajout du Main flow
          if get(handles.MainGas,'value')==1 %Argon
          flow(3) = flow(3) + str2double(get(handles.Mainflow,'String'));

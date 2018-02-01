@@ -1,4 +1,4 @@
-function [densite1s,sig_densite1s,densite2p,sig_densite2p,Gains2p,Pertes2p,Emission,ContributionFond2p,Mecanismes,energie1s,energie2p,Gains1s,Pertes1s] = TeIntTheo_TRG(gaz,ne,Te,rateGround_1s,rateGround_2p,rate1s_2p,rateQuenching,rateNeutral,sig_rateGround_1s,sig_rateGround_2p,sig_rate1s_2p,sig_rateQuenching,sig_rateNeutral,Tg,longueur,AllIntegral,P,IndexOffset,max,flow,ChoixAutoabs,sig_longueur,nm_Ar)
+function [densite1s,sig_densite1s,densite2p,sig_densite2p,Gains2p,Pertes2p,Emission,ContributionFond2p,Mecanismes,energie1s,energie2p,Gains1s,Pertes1s] = TeIntTheo_TRG(gaz,ne,Te,rateGround_1s,rateGround_2p,rate1s_2p,rateQuenching,rateNeutral,sig_rateGround_1s,sig_rateGround_2p,sig_rate1s_2p,sig_rateQuenching,sig_rateNeutral,Tg,longueur,AllIntegral,P,IndexOffset,max,flow,ChoixAutoabs,sig_longueur,nm_Ar,sig_nm_Ar)
 
 %% =====================================================================================================
 %% ================ Cette fonction calcule les intensité théorique de raies pour tous ==================
@@ -195,7 +195,7 @@ densite1s(isnan(densite1s)) = 0 ; %enleve le NaN en 1s1
 %  =========================================================== 
 %calcul des incertide sur les taux de réactions
 [sig_PopFond]= TePopulation_Metastable_TRG(ng(gaz),ne,sig_rateGround_1s(:,t+IndexOffset-1));
-[sig_Depop2p,sig_DepopRadFond,sig_PopAutoAbs,sig_DepopMix,sig_PopMix,sig_DepopSuperelestique,sig_DepopIonisation,sig_DepopNeutre,sig_PopUpDown] = TeDepopulation_Metastable_TRG(t+IndexOffset-1,gaz,ng,ne,Aij1s,Thetaij_1s,sig_rate1s_2p,sig_rateQuenching,sig_rateNeutral,Br2p,nm_Ar);
+[sig_Depop2p,sig_DepopRadFond,sig_PopAutoAbs,sig_DepopMix,sig_PopMix,sig_DepopSuperelestique,sig_DepopIonisation,sig_DepopNeutre,sig_PopUpDown,sig_PopAr_1s] = TeDepopulation_Metastable_TRG(t+IndexOffset-1,gaz,ng,ne,Aij1s,Thetaij_1s,sig_rate1s_2p,sig_rateQuenching,sig_rateNeutral,Br2p,sig_nm_Ar);
 
 iter=0; % boucle qui compte le nombre d'itération
 residu=10e21; %start le résidu à quelquechose de très gros.
@@ -216,7 +216,7 @@ for j=2:5 % boucle sur les 1s à résoudre
     perte(t,j)        =    Depop2p(j,j)+DepopRadFond(j,j)+DepopMix(j,j)+DepopSuperelestique(j,j)+DepopIonisation(j,j)+DepopNeutre(j,j);
     sig_perte(t,j)    =    sqrt(sig_Depop2p(j,j)^2+sig_DepopRadFond(j,j)^2+sig_DepopMix(j,j)^2+sig_DepopSuperelestique(j,j)^2+sig_DepopIonisation(j,j)^2+sig_DepopNeutre(j,j)^2);
     gain(t,j)         =    gain(t,j)+PopFond(j) + PopAr_1s(j);
-    sig_gain(t,j)     =    sqrt(sig_gain(t,j)+sig_PopFond(j).^2);
+    sig_gain(t,j)     =    sqrt(sig_gain(t,j) + sig_PopFond(j).^2 + sig_PopAr_1s(j).^2);
 end    
 clear i j
 iter=iter+1;
@@ -336,7 +336,7 @@ sig_densite1s(t,4)=sig_densite1s(t,5)*densite1s(t,4)/densite1s(t,5);
 %  =======================sur les 2P ========================= 
 %  ===========================================================  
 %  =========================================================== 
-    [sig_PopFond2p,sig_PopNm2p,sig_Pop1,sig_PopAr]=TePopulation_TRG(t+IndexOffset-1,ng,ne,n1sX,sig_rate1s_2p,sig_rateGround_2p,gaz,nm_Ar);
+    [sig_PopFond2p,sig_PopNm2p,sig_Pop1,sig_PopAr]=TePopulation_TRG(t+IndexOffset-1,ng,ne,n1sX,sig_rate1s_2p,sig_rateGround_2p,gaz,sig_nm_Ar);
     [sig_DepopRad2p,sig_PopRad2p,sig_DepopColl2p,sig_DepopColl1s,sig_PopColl2p]=TeDepopulation_TRG(Aij2p,sig_Thetaij,En2px_1s,En2px_2py,ng(gaz));   %Considère desexc. rad. + transfert coll vers le haut et le bas
 
     %Aucune incertitude sur le Depop
@@ -348,7 +348,7 @@ for j=1:10 % boucle sur les 2P à résoudre
     for i=2:5 % Boucle sur les 1s
       sig_gain_2P_a(j) = sig_gain_2P_a(j) + (sig_densite1s(t,i)*Pop1s(j,i))^2;
     end
-    sig_gain_2P(t,11-j) = sqrt(sig_gain_2P_a(j) + sig_PopFond2p(j)^2 + sig_PopNm2p(j)^2 + (densite2p(t,j)*sig_PopRad2p(j))^2 + (sig_densite2p(t,j)*PopRad2p(j))^2);%11-j car gain(1)=2p10 et gain(10)=2p1
+    sig_gain_2P(t,11-j) = sqrt(sig_gain_2P_a(j) + sig_PopFond2p(j)^2 + sig_PopNm2p(j)^2 + sig_PopAr(j)^2 + (densite2p(t,j)*sig_PopRad2p(j))^2 + (sig_densite2p(t,j)*PopRad2p(j))^2);%11-j car gain(1)=2p10 et gain(10)=2p1
     gain_2P(t,j) = PopFond2p(j)+ PopNm2p(j) + densite2p(t,j)*PopRad2p(j)+PopAr(j);
    
 end    

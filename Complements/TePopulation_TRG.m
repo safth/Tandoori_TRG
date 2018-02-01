@@ -53,6 +53,37 @@ if gaz == 4
                                     0        ; %2p3 
                                     0        ; %2p2 
                                     0]       ; %2p1
+
+elseif gaz == 5
+    %Electronic Energy Transfer from Metastable Argon (4s3P2,0) to Xenon,
+    %Oxygen and Chlorine Atoms. David L king 1973
+   Gain_Ar1s3 = nm_Ar(1,1,i,3)*ng(gaz)*1e-17*[ 10.53*0.0775 ;    %7d->6p
+                                                4.12*0.03*0.775; %5f->7d->6p
+                                                0.69*0.505];     %9s->6p
+                    
+    Gain_Ar1s5 = nm_Ar(1,1,i,5)*ng(gaz)*1e-17*[16.78*0.68             ; %8d->6p
+                                               16.78*0.001*0.02*0.78  ; %8d-9p-7d->6p
+                                               16.78*0.001*0.2*0.51   ; %8d-9p-9s->6p
+                                               8.82*0.022             ; %6f-8d->6p
+                                               8.82*0.007*0.775       ; %6f-7d->6p
+                                               2.96*0.021*0.775       ; %9p-7d->6p
+                                               2.96*0.188*0.505       ; %9p-9s->6p
+                                               1.42*0.47              ; %10s->6p
+                                               1.42*0.021*0.775       ; %10s-9p-7d->6p
+                                               1.42*0.188*0.505]      ; %10s-9p-9s->6p 
+   Gain_tot = (sum(Gain_Ar1s3) + sum(Gain_Ar1s5))/6;        %/6 car c'est des Br moyen vers tous les 2p10à5             
+    
+   PopAr = Gain_tot * [1; %2p10
+                       1;
+                       1;
+                       1;
+                       1;
+                       1;
+                       0;
+                       0;
+                       0;
+                       0]; %2p1                              
+
 else
     PopAr  =       [0        ; %2p10
                     0        ; %2p9 
