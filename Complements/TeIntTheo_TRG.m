@@ -304,7 +304,8 @@ sig_densite1s(t,4)=sig_densite1s(t,5)*densite1s(t,4)/densite1s(t,5);
     PerteColl1s(t,:)=(100*DepopColl1s*densite2p(t,:)')./((DepopRad2p+DepopColl2p+DepopColl1s)*densite2p(t,:)');
     
     %% En particulier, on regarde pour quels paramètres l'excitation du fondamental (ou à l'inverse via les 1s) domine
-    ContributionFond2p(t,:)=100*PopFond2p./(PopFond2p+PopNm2p);
+    %ContributionFond2p(t,:)=100*PopFond2p./(PopFond2p+PopNm2p);
+    ContributionFond2p(t,:)=GainFond(t,:);
     
     ground=0; met=0;    %Compteurs
     for m=1:10 %Pour tous les niveaux

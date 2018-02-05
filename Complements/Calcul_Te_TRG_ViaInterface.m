@@ -342,15 +342,18 @@ for gaz=gaz_i:gaz_f %On fait le calcul théorique de l'intensité de raies pour 2=
     end    %Fin Boucle Ne
 
     
-    %% mise en graphique des %population en fonction de Te ou Ne pour tout les niveaux
-   % if TeGraph1==1
-   %      TeGraphesPercentFond(gaz,Ne,Te,ContributionFond)
-   % end
+
+
 
    
 end %fin boucle sur les gaz
-a(:,:)=I_theo(1,:,:);
-    save('I_theo.mat','a')
+
+    %% mise en graphique des %population en fonction de Te ou Ne pour tout les niveaux
+
+         %TeGraphesPercentFond(gaz,Ne,Te,ContributionFond)
+         
+% a(:,:)=I_theo(1,:,:);
+%     save('I_theo.mat','a')
 %     stop
 
 clear Allrates1s_2p AllratesGround_2p AllratesGround_1s AllratesQuenching_1s rates_neutral position
