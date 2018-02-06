@@ -346,12 +346,11 @@ for gaz=gaz_i:gaz_f %On fait le calcul théorique de l'intensité de raies pour 2=
 
     
     %% mise en graphique des %population en fonction de Te ou Ne pour tout les niveaux
-   % if TeGraph1==1
-   %      TeGraphesPercentFond(gaz,Ne,Te,ContributionFond)
-   % end
 
    
 end %fin boucle sur les gaz
+
+%TeGraphesPercentFond(gaz,Ne,Te,ContributionFond)
 a(:,:)=I_theo(1,:,:);
     save('I_theo.mat','a')
 %     stop
@@ -365,7 +364,7 @@ disp('Intensités théoriques calculées')
 disp('Comparaison expérience-théorie...')
 
 %% ============== Création des fichiers textes contenant les infos pertinentes pour chaque fichier analysé ==============
-if exist('Te.txt', 'file')==0 % n'écrit pas le Header si il est deja fait
+if exist('Te.out', 'file')==0 % n'écrit pas le Header si il est deja fait
     fileID = fopen('Te.out','a');               
     formatSpec = '%-22s\t %s \t%s \t%s \t%s \t%s \t%s \t%s \t%s \t%s \t%s\r\n';  
     fprintf(fileID,formatSpec,'------NomFichier------','TeOpt','TeMin','TeMax','NeOpt   ','% STD','Poids','exp','HighP','AutoAbs','Commentaire');
