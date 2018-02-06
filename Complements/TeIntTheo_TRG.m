@@ -112,7 +112,7 @@ function [densite1s,sig_densite1s,densite2p,sig_densite2p,Gains2p,Pertes2p,Emiss
     
     Mecanismes   =2*ones(length(Te),1);
     
-    n1sX            =zeros(1,5);
+    
     
     %% Correction des taux collisionnels en température
     En2px_1s=En2px_1s*(sqrt(Tg/300));
@@ -142,23 +142,48 @@ for t=1:length(Te)
             end
         end
     end 
-%% Mécanismes indépendants de la densité des 1s
-[PopFond]= TePopulation_Metastable_TRG(ng(gaz),ne,rateGround_1s(:,t+IndexOffset-1));
+    
+residu=10e21; %start le résidu à quelquechose de très gros. 
+iter=1;
+temp_n1sX = zeros(1,5);
+while residu > temp_n1sX(5)/100 %boucle car 1s3 dépend de 1s5 et vice versa
+    %remet n1sx à zero pour chaque itération
+    n1sX = zeros(1,5);
+    
+    % Calcul de l'élargissement et du piégeage optique pour les transitions radiatives 2p-1s
+    for i=1:10  %Boucle sur les 2p
+        for j=1:5   %Boucle sur les 1s
+            if Aij2p(i,j)~=0
+                if ChoixAutoabs==1
+                   [Thetaij_2p(i,j),Dopp(i,j),sig_Thetaij(i,j)]=TeEscapeFactorDOPE_TRG(gaz,LambdaTheo2p(i,j),poids2p(i),poids1s(j),Aij2p(i,j),temp_n1sX(j),longueur,Tg,0,0);  
+                else
+                   Thetaij_2p(i,j) = 1; %on néglige l'autoabsorption
+                end
+            end
+        end      
+    end
+    
+    
+    %% Mécanismes indépendants de la densité des 1s
+    [PopFond]= TePopulation_Metastable_TRG(ng(gaz),ne,rateGround_1s(:,t+IndexOffset-1));
+
+
+    %% Mécanismes dépendant de la densité des 1s    
+    [Depop2p,DepopRadFond,PopAutoAbs,DepopMix,PopMix,DepopSuperelestique,DepopIonisation,DepopNeutre,PopUpDown,PopNeutre,DepopMixAutoAbs,PopMixAutoAbs] = TeDepopulation_Metastable_TRG(t+IndexOffset-1,gaz,ng,ne,Aij1s,Thetaij_1s,rate1s_2p,rateQuenching,rateNeutral,Br2p,nm_Ar,Thetaij_2p,Aij2p);
+
+    depopulation1s=Depop2p+DepopRadFond-PopAutoAbs+DepopMix-PopMix+DepopSuperelestique+DepopIonisation + DepopNeutre*2^(0) - PopUpDown + DepopMixAutoAbs - PopMixAutoAbs;
+    population1s=PopFond;
+    
+    %% Obtention de la densité des niveaux pour avoir l'etat stationnaire depopulation=population
 
     
-%% Mécanismes dépendant de la densité des 1s    
-[Depop2p,DepopRadFond,PopAutoAbs,DepopMix,PopMix,DepopSuperelestique,DepopIonisation,DepopNeutre,PopUpDown,PopNeutre] = TeDepopulation_Metastable_TRG(t+IndexOffset-1,gaz,ng,ne,Aij1s,Thetaij_1s,rate1s_2p,rateQuenching,rateNeutral,Br2p,nm_Ar);
-
-depopulation1s=Depop2p+DepopRadFond-PopAutoAbs+DepopMix-PopMix+DepopSuperelestique+DepopIonisation + DepopNeutre*2^(0) - PopUpDown;
-population1s=PopFond;
-% DepopNeutre;
-%% Obtention de la densité des niveaux pour avoir l'etat stationnaire depopulation=population
-
-n1sX=linsolve(depopulation1s,population1s);
-%n1sX(2)=0; %negliger les résonnant
-%n1sX(4)=0; %negliger les résonnant
-
-
+    n1sX=linsolve(depopulation1s,population1s);
+    
+    residu = abs(n1sX(5)-temp_n1sX(5)); %la valeur de densité - celle d'avant (juste le 1s5)
+    temp_n1sX = n1sX; %on assigne temp_n1sx la valeur calculé
+    y(iter)=n1sX(5);
+iter=iter+1;
+end
 densite1s(t,:)=n1sX;
 
 densite1s(isnan(densite1s)) = 0 ; %enleve le NaN en 1s1
@@ -192,7 +217,7 @@ densite1s(isnan(densite1s)) = 0 ; %enleve le NaN en 1s1
 %  =========================================================== 
 %calcul des incertide sur les taux de réactions
 [sig_PopFond]= TePopulation_Metastable_TRG(ng(gaz),ne,sig_rateGround_1s(:,t+IndexOffset-1));
-[sig_Depop2p,sig_DepopRadFond,sig_PopAutoAbs,sig_DepopMix,sig_PopMix,sig_DepopSuperelestique,sig_DepopIonisation,sig_DepopNeutre,sig_PopUpDown] = TeDepopulation_Metastable_TRG(t+IndexOffset-1,gaz,ng,ne,Aij1s,Thetaij_1s,sig_rate1s_2p,sig_rateQuenching,sig_rateNeutral,Br2p,nm_Ar);
+[sig_Depop2p,sig_DepopRadFond,sig_PopAutoAbs,sig_DepopMix,sig_PopMix,sig_DepopSuperelestique,sig_DepopIonisation,sig_DepopNeutre,sig_PopUpDown] = TeDepopulation_Metastable_TRG(t+IndexOffset-1,gaz,ng,ne,Aij1s,Thetaij_1s,sig_rate1s_2p,sig_rateQuenching,sig_rateNeutral,Br2p,nm_Ar,Thetaij_2p,Aij2p); % TODO
 
 iter=0; % boucle qui compte le nombre d'itération
 residu=10e21; %start le résidu à quelquechose de très gros.
