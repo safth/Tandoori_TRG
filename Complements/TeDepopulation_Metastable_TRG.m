@@ -1,4 +1,4 @@
-function [Depop2p,DepopRadFond,PopAutoAbs,DepopMix,PopMix,DepopSuperelestique,DepopIonisation,DepopNeutre,PopUpDown,PopNeutre] = ...
+function [Depop2p,DepopRadFond,PopAutoAbs,DepopMix,PopMix,DepopSuperelestique,DepopIonisation,DepopNeutre,PopUpDown,PopNeutre,DepopMixAutoAbs,PopMixAutoAbs] = ...
     TeDepopulation_Metastable_TRG(i,gaz,ng,ne,Aij1s,Thetaij,rate1s_2p,rateQuenching,rateNeutral,Br2p,nm_Ar)
 
 %% 1) Depop impact électronique vers les 2p
@@ -86,4 +86,5 @@ PopUpDown = ne*[0         0           0               0              0     ; %RI
                  0 Cascade(3,2)        0           Cascade(3,4)   Cascade(3,5); %1s3
                  0 Cascade(4,2)    Cascade(4,3)        0          Cascade(4,5); %1s4
                  0 Cascade(5,2)    Cascade(5,3)    Cascade(5,4)       0      ]; %1s5
+
 
