@@ -104,7 +104,7 @@ function [densite1s,sig_densite1s,densite2p,sig_densite2p,Gains2p,Pertes2p,Emiss
     Resonant        =zeros(length(Te),index);
     
     Thetaij         =zeros(10,5);
-    sig_Thetaij         =zeros(10,5);
+    sig_Thetaij     =zeros(10,5);
     Thetaij_1s      =zeros(1,5);
     Dopp            =zeros(10,5);
     VDWaals         =zeros(10,5);
