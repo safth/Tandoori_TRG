@@ -157,8 +157,8 @@ population1s=PopFond+PopAr_1s;
 %% Obtention de la densité des niveaux pour avoir l'etat stationnaire depopulation=population
 
 n1sX=linsolve(depopulation1s,population1s);
-%n1sX(2)=0; %negliger les résonnant
-%n1sX(4)=0; %negliger les résonnant
+n1sX(2)=1e1; %negliger les résonnant
+n1sX(4)=1e1; %negliger les résonnant
 
 
 densite1s(t,:)=n1sX;
