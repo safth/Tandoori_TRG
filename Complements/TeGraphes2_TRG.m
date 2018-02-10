@@ -14,12 +14,12 @@ function TeGraphes2_TRG(Ne,Te,SEGD,a,b,c,I_exp,sig_I_exp,FitCorrige,ChoixErreur,
 % PopFond=zeros(10,2);
 
 %% Extraction des données des matrices
-I_theo=zeros(1,size(a,3));
-sig_I_theo=zeros(1,size(b,3));
-Thetaij=zeros(1,size(c,3));
-I_theo(:)=a(1,1,:);
-sig_I_theo(:)=b(1,1,:);
-Thetaij(:)=c(1,1,:);
+I_theo=zeros(1,size(a,4));
+sig_I_theo=zeros(1,size(b,4));
+Thetaij=zeros(1,size(c,4));
+I_theo(:)=a(1,1,1,:);
+sig_I_theo(:)=b(1,1,1,:);
+Thetaij(:)=c(1,1,1,:);
 AutoAbsTheo=1-Thetaij;
 
   %rejete les raies avec une incertitude plus grande que la

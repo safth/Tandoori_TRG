@@ -1,4 +1,4 @@
-function [densite1s,sig_densite1s,densite2p,sig_densite2p,Gains2p,Pertes2p,Emission,ContributionFond2p,Mecanismes,energie1s,energie2p,Gains1s,Pertes1s] = TeIntTheo_TRG(gaz,ne,Te,rateGround_1s,rateGround_2p,rate1s_2p,rateQuenching,rateNeutral,sig_rateGround_1s,sig_rateGround_2p,sig_rate1s_2p,sig_rateQuenching,sig_rateNeutral,Tg,longueur,AllIntegral,P,IndexOffset,max,flow,ChoixAutoabs,sig_longueur,nm_Ar,sig_nm_Ar)
+function [densite1s,sig_densite1s,densite2p,sig_densite2p,Gains2p,Pertes2p,Emission,ContributionFond2p,Mecanismes,energie1s,energie2p,Gains1s,Pertes1s] = TeIntTheo_TRG(gaz,ne,Te,Quench,rateGround_1s,rateGround_2p,rate1s_2p,rateQuenching,rateNeutral,sig_rateGround_1s,sig_rateGround_2p,sig_rate1s_2p,sig_rateQuenching,sig_rateNeutral,Tg,longueur,AllIntegral,P,IndexOffset,max,flow,ChoixAutoabs,sig_longueur,nm_Ar,sig_nm_Ar)
 
 %% =====================================================================================================
 %% ================ Cette fonction calcule les intensité théorique de raies pour tous ==================
@@ -151,7 +151,7 @@ for t=1:length(Te)
 %% Mécanismes dépendant de la densité des 1s    
 [Depop2p,DepopRadFond,PopAutoAbs,DepopMix,PopMix,DepopSuperelestique,DepopIonisation,DepopNeutre,PopUpDown,PopAr_1s] = TeDepopulation_Metastable_TRG(t+IndexOffset-1,gaz,ng,ne,Aij1s,Thetaij_1s,rate1s_2p,rateQuenching,rateNeutral,Br2p,nm_Ar);
 
-depopulation1s=Depop2p+DepopRadFond-PopAutoAbs+DepopMix-PopMix+DepopSuperelestique+DepopIonisation + DepopNeutre - PopUpDown;
+depopulation1s=Depop2p+DepopRadFond-PopAutoAbs+DepopMix-PopMix+DepopSuperelestique+DepopIonisation + DepopNeutre*(2^Quench) - PopUpDown;
 population1s=PopFond+PopAr_1s;
 % DepopNeutre;
 %% Obtention de la densité des niveaux pour avoir l'etat stationnaire depopulation=population

@@ -18,28 +18,28 @@ global gaz_i gaz_f
 for gaz=gaz_i:gaz_f 
     %%
     for l=1:10
-   Population2p(gaz,l,1)=Gains2p(gaz,1,1,l,1); %Population impact électronique sur le fondamental
-   Population2p(gaz,l,2)=Gains2p(gaz,1,1,l,2); %Population impact électronique sur les 1s
-   Population2p(gaz,l,3)=Gains2p(gaz,1,1,l,4); %Population ré-absorption de photon
-   Population2p(gaz,l,4)=Gains2p(gaz,1,1,l,5); %Transfert radiatif du Ar(1s5)
-   Depopulation2p(gaz,l,1)=Pertes2p(gaz,1,1,l,1);     %Dépopulation desexcitation radiative
-   Depopulation2p(gaz,l,2)=Pertes2p(gaz,1,1,l,2);%/(Pertes(1,l)+Pertes(2,l)+Pertes(3,l));      %Dépopulation transfert collisionnel entre les 2p
-   Depopulation2p(gaz,l,3)=Pertes2p(gaz,1,1,l,3);%/(Pertes(1,l)+Pertes(2,l)+Pertes(3,l));      %Dépopulation transfert collisionnel vers les 1s
+   Population2p(gaz,l,1)=Gains2p(gaz,1,1,1,l,1); %Population impact électronique sur le fondamental
+   Population2p(gaz,l,2)=Gains2p(gaz,1,1,1,l,2); %Population impact électronique sur les 1s
+   Population2p(gaz,l,3)=Gains2p(gaz,1,1,1,l,4); %Population ré-absorption de photon
+   Population2p(gaz,l,4)=Gains2p(gaz,1,1,1,l,5); %Transfert radiatif du Ar(1s5)
+   Depopulation2p(gaz,l,1)=Pertes2p(gaz,1,1,1,l,1);     %Dépopulation desexcitation radiative
+   Depopulation2p(gaz,l,2)=Pertes2p(gaz,1,1,1,l,2);%/(Pertes(1,l)+Pertes(2,l)+Pertes(3,l));      %Dépopulation transfert collisionnel entre les 2p
+   Depopulation2p(gaz,l,3)=Pertes2p(gaz,1,1,1,l,3);%/(Pertes(1,l)+Pertes(2,l)+Pertes(3,l));      %Dépopulation transfert collisionnel vers les 1s
    
-   PopFond2p(gaz,l,1)=ContributionFond(gaz,1,1,l);
-   PopFond2p(gaz,l,2)=100-ContributionFond(gaz,1,1,l);
+   PopFond2p(gaz,l,1)=ContributionFond(gaz,1,1,1,l);
+   PopFond2p(gaz,l,2)=100-ContributionFond(gaz,1,1,1,l);
     end
     for l=1:5
-   Population1s(gaz,l,1)=Gains1s(gaz,1,1,l,1);
-   Population1s(gaz,l,2)=Gains1s(gaz,1,1,l,2);
-   Population1s(gaz,l,3)=Gains1s(gaz,1,1,l,3)+Gains1s(gaz,1,1,l,4); %mix pis updown c'est le meme mécanisme
-   Population1s(gaz,l,4)=Gains1s(gaz,1,1,l,5);
-   Depopulation1s(gaz,l,1)=Pertes1s(gaz,1,1,l,1);
-   Depopulation1s(gaz,l,2)=Pertes1s(gaz,1,1,l,2);
-   Depopulation1s(gaz,l,3)=Pertes1s(gaz,1,1,l,3);
-   Depopulation1s(gaz,l,4)=Pertes1s(gaz,1,1,l,4);
-   Depopulation1s(gaz,l,5)=Pertes1s(gaz,1,1,l,5);
-   Depopulation1s(gaz,l,6)=Pertes1s(gaz,1,1,l,6);
+   Population1s(gaz,l,1)=Gains1s(gaz,1,1,1,l,1);
+   Population1s(gaz,l,2)=Gains1s(gaz,1,1,1,l,2);
+   Population1s(gaz,l,3)=Gains1s(gaz,1,1,1,l,3)+Gains1s(gaz,1,1,1,l,4); %mix pis updown c'est le meme mécanisme
+   Population1s(gaz,l,4)=Gains1s(gaz,1,1,1,l,5);
+   Depopulation1s(gaz,l,1)=Pertes1s(gaz,1,1,1,l,1);
+   Depopulation1s(gaz,l,2)=Pertes1s(gaz,1,1,1,l,2);
+   Depopulation1s(gaz,l,3)=Pertes1s(gaz,1,1,1,l,3);
+   Depopulation1s(gaz,l,4)=Pertes1s(gaz,1,1,1,l,4);
+   Depopulation1s(gaz,l,5)=Pertes1s(gaz,1,1,1,l,5);
+   Depopulation1s(gaz,l,6)=Pertes1s(gaz,1,1,1,l,6);
     end   
     
    
@@ -61,7 +61,7 @@ for gaz=gaz_i:gaz_f
 
       subplot(2,3,4)
       subplot('position',[0.04 0.07 0.29 0.36])
-      scatter(energie2p(gaz,:)',densite2p(gaz,1,1,:)/ng(gaz),'filled','d')
+      scatter(energie2p(gaz,:)',densite2p(gaz,1,1,1,:)/ng(gaz),'filled','d')
       set(gca, 'yscale', 'log')
       xlabel('Énergies Niveaux 2p_x','FontSize',11,'fontweight','bold');
       title('Densite des niveaux 2p_x par rapport au Fondamental','fontweight','bold')
@@ -116,7 +116,7 @@ for gaz=gaz_i:gaz_f
 %% Graphe de la densité des niveaux 1s
       subplot(2,3,1)
       subplot('position',[0.04 0.55 0.29 0.4])
-      scatter(energie1s(gaz,:)',densite1s(gaz,1,1,:),'filled','d')
+      scatter(energie1s(gaz,:)',densite1s(gaz,1,1,1,:),'filled','d')
       %errorbar(energie1s(gaz,:)',densite1s(gaz,:)/ng(gaz),sig_densite1s(gaz,:)/ng(gaz),'o','CapSize',18)
       set(gca, 'yscale', 'log')
       xlabel('Énergies Niveaux 1s_5 à 1s_2','FontSize',11,'fontweight','bold');

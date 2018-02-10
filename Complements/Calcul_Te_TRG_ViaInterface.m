@@ -35,6 +35,9 @@ warning('off') % ne pas affichier les avertissements lors du calcul des 1s (1s1 
 % Range de densité électronique scannée (m^-3)
    Ne =logspace(log10(InfoNe(1)/InfoNe(2)),log10(InfoNe(1)*InfoNe(2)),InfoNe(3));  %logspace(X,Y,Z)= 10^X à 10^Y, avec Z valeurs entre les deux 
     
+% Range du quenching
+   Quench= -4:4;
+   
 % Choix d'affichage des différents graphes (=0 n'affice pas, =1 affiche)
     GraphExp=InfoGraphes(1);         %Graphe de l'extraction des intensité expérimentales des raies ET des fits gaussiens sur les raies
     TeGraph1=InfoGraphes(2);         %Graphe de Iobs/Iexp ou %fond en fonction de Te ou Ne
@@ -233,22 +236,22 @@ disp ('Calcul de l''intensité théorique des raies...')
 
 
     %% Préallocation d'espace
-    I_theo      =zeros(length(Ne),length(Te),length(E)); %les 41 raies dans le meme fichier
-    sig_I_theo  =zeros(length(Ne),length(Te),length(E)); %les 41 raies dans le meme fichier
-    Thetaij     =ones(length(Ne),length(Te),length(E)); 
-    Doppler     =zeros(length(Ne),length(Te),length(E));
-    VanDerWaals =zeros(length(Ne),length(Te),length(E));
-    Resonant    =zeros(length(Ne),length(Te),length(E));
+    I_theo      =zeros(length(Ne),length(Te),9,length(E)); %les 41 raies dans le meme fichier
+    sig_I_theo  =zeros(length(Ne),length(Te),9,length(E)); %les 41 raies dans le meme fichier
+    Thetaij     =ones(length(Ne),length(Te),9,length(E)); 
+    Doppler     =zeros(length(Ne),length(Te),9,length(E));
+    VanDerWaals =zeros(length(Ne),length(Te),9,length(E));
+    Resonant    =zeros(length(Ne),length(Te),9,length(E));
 
-    Gains2p    =zeros(5,length(Ne),length(Te),10,5); %gaz #1à5 avec 10 2p chacuns
-    Pertes2p   =zeros(5,length(Ne),length(Te),10,3);
-    densite2p     =zeros(5,length(Ne),length(Te),10);
-    ContributionFond    =zeros(5,length(Ne),length(Te),10);
-    densite1s     =zeros(5,length(Ne),length(Te),5);
-    sig_densite1s     =zeros(5,length(Ne),length(Te),5);
+    Gains2p    =zeros(5,length(Ne),length(Te),9,10,5); %gaz #1à5 avec 10 2p chacuns
+    Pertes2p   =zeros(5,length(Ne),length(Te),9,10,3);
+    densite2p     =zeros(5,length(Ne),length(Te),9,10);
+    ContributionFond    =zeros(5,length(Ne),length(Te),9,10);
+    densite1s     =zeros(5,length(Ne),length(Te),9,5);
+    sig_densite1s     =zeros(5,length(Ne),length(Te),9,5);
 
-    Gains1s    =zeros(5,length(Ne),length(Te),5,5); %gaz #1à5 avec 10 2p chacuns
-    Pertes1s   =zeros(5,length(Ne),length(Te),5,6);
+    Gains1s    =zeros(5,length(Ne),length(Te),9,5,5); %gaz #1à5 avec 10 2p chacuns
+    Pertes1s   =zeros(5,length(Ne),length(Te),9,5,6);
     
     
     %% sélection des taux de réactions
@@ -301,49 +304,50 @@ for gaz=gaz_i:gaz_f %On fait le calcul théorique de l'intensité de raies pour 2=
     %Te sélectionné
     [rateGround_1s,rateGround_2p,rate1s_2p,rateQuenching,rateNeutral,sig_rateGround_1s,sig_rateGround_2p,sig_rate1s_2p,sig_rateQuenching,sig_rateNeutral] = TeTauxDeReaction_TRG(gaz,Te,ChoixHautePression,ChoixAutoabs,exposant);
     disp('Taux de réaction selectionnés')
+    %%  ==============  loop sur sur le quenching ==============
+    for r=1:9; %
+         waitbar(wait/(length(gaz_i:gaz_f)*length(Quench)),h,'Calcul théorique') 
+         wait=wait+1;
+        %%  ============== Première loop sur la densité électronique: COMPTEUR: j ==============
+        for j=1:length(Ne)
+            %% Calcul du bilan de population: gains=pertes
+           [densite_1s,sig_densite_1s,densite_2p,sig_density,Gains_2p,Pertes_2p,Emission,PopFond,Mecanisms,energie_1s,energie_2p,Gains_1s,Pertes_1s]=TeIntTheo_TRG(gaz,Ne(j),Te,Quench(r),rateGround_1s,rateGround_2p,rate1s_2p,rateQuenching,rateNeutral,sig_rateGround_1s,sig_rateGround_2p,sig_rate1s_2p,sig_rateQuenching,sig_rateNeutral,Tg,longueur,AllIntegral,P,1,0,flow,ChoixAutoabs,sig_longueur,densite1s(3,j,:,:),sig_densite1s(3,j,:,:));
+           %% Extraction et mise en mémoire des données pour chaque fichier, densité électronique et Te
 
-    %%  ============== Première loop sur la densité électronique: COMPTEUR: j ==============
-    for j=1:length(Ne)
-        waitbar(wait/(length(gaz_i:gaz_f)*length(Ne)),h,'Calcul théorique') 
-        wait=wait+1;
-        %% Calcul du bilan de population: gains=pertes
-       [densite_1s,sig_densite_1s,densite_2p,sig_density,Gains_2p,Pertes_2p,Emission,PopFond,Mecanisms,energie_1s,energie_2p,Gains_1s,Pertes_1s]=TeIntTheo_TRG(gaz,Ne(j),Te,rateGround_1s,rateGround_2p,rate1s_2p,rateQuenching,rateNeutral,sig_rateGround_1s,sig_rateGround_2p,sig_rate1s_2p,sig_rateQuenching,sig_rateNeutral,Tg,longueur,AllIntegral,P,1,0,flow,ChoixAutoabs,sig_longueur,densite1s(3,j,:,:),sig_densite1s(3,j,:,:));
-       %% Extraction et mise en mémoire des données pour chaque fichier, densité électronique et Te
+           for i=1:length(Te)
+               n=0;
+                for m=index(1):index(2)                     % Pour chaque raie...
+                    n=n+1;% pour emission
+                    I_theo(j,i,r,m)=Emission(1,i,n);          % Intensité théorique
+                    sig_I_theo(j,i,r,m)=Emission(6,i,n);      % Intensité théorique
+                    Thetaij(j,i,r,m)=Emission(2,i,n);         % Escape Factor 
+                    Doppler(j,i,r,m)=Emission(3,i,n);         % Élargissement Doppler
+                    VanDerWaals(j,i,r,m)=Emission(4,i,n);     % Élargissement VanDerWaals
+                    Resonant(j,i,r,m)=Emission(5,i,n);        % Élargissement Resonant
+                end  
+                for l=1:10 
+                    %for k=1:size(Gains_2p,1)% Pour chaque niveau...         
+                    Gains2p(gaz,j,i,r,l,:)=Gains_2p(:,i,l);        %1=fond,2=Nm,3=coll2P,4=radtrap, 5 = Transfert Radiatif 
+                    Pertes2p(gaz,j,i,r,l,:)=Pertes_2p(:,i,l);      % 1=rad 2=coll2p 3=coll1s
+                    %end
+                    densite2p(gaz,j,i,r,l)=densite_2p(i,l);            % Densité des 2p
+                    ContributionFond(gaz,j,i,r,l)=PopFond(i,l);   % Pourcentage de la population en comparant seulement le fondamental et les métastables    
 
-       for i=1:length(Te)
-           n=0;
-            for m=index(1):index(2)                     % Pour chaque raie...
-                n=n+1;% pour emission
-                I_theo(j,i,m)=Emission(1,i,n);          % Intensité théorique
-                sig_I_theo(j,i,m)=Emission(6,i,n);      % Intensité théorique
-                Thetaij(j,i,m)=Emission(2,i,n);         % Escape Factor 
-                Doppler(j,i,m)=Emission(3,i,n);         % Élargissement Doppler
-                VanDerWaals(j,i,m)=Emission(4,i,n);     % Élargissement VanDerWaals
-                Resonant(j,i,m)=Emission(5,i,n);        % Élargissement Resonant
-            end  
-            for l=1:10 
-                %for k=1:size(Gains_2p,1)% Pour chaque niveau...         
-                Gains2p(gaz,j,i,l,:)=Gains_2p(:,i,l);        %1=fond,2=Nm,3=coll2P,4=radtrap, 5 = Transfert Radiatif 
-                Pertes2p(gaz,j,i,l,:)=Pertes_2p(:,i,l);      % 1=rad 2=coll2p 3=coll1s
-                %end
-                densite2p(gaz,j,i,l)=densite_2p(i,l);            % Densité des 2p
-                ContributionFond(gaz,j,i,l)=PopFond(i,l);   % Pourcentage de la population en comparant seulement le fondamental et les métastables    
-                
-            end
-             for l=1:5   
-                 Gains1s(gaz,j,i,l,:)=Gains_1s(:,i,l);  
-                 Pertes1s(gaz,j,i,l,:)=Pertes_1s(:,i,l); 
-                 densite1s(gaz,j,i,l)=densite_1s(i,l);
-                 sig_densite1s(gaz,j,i,l)=sig_densite_1s(i,l);
-             end
-             energie1s(gaz,:)=energie_1s(:);
-             energie2p(gaz,:)=energie_2p(:);
-           
-            mecanismes(gaz,j,i)=Mecanisms(i);
+                end
+                 for l=1:5   
+                     Gains1s(gaz,j,i,r,l,:)=Gains_1s(:,i,l);  
+                     Pertes1s(gaz,j,i,r,l,:)=Pertes_1s(:,i,l); 
+                     densite1s(gaz,j,i,r,l)=densite_1s(i,l);
+                     sig_densite1s(gaz,j,i,r,l)=sig_densite_1s(i,l);
+                 end
+                 energie1s(gaz,:)=energie_1s(:);
+                 energie2p(gaz,:)=energie_2p(:);
 
-       end   %Fin Boucle Te
-    end    %Fin Boucle Ne
+                mecanismes(gaz,j,i)=Mecanisms(i);
 
+           end   %Fin Boucle Te
+        end    %Fin Boucle Ne
+    end % fin de la boucle sur le quenching
     
     %% mise en graphique des %population en fonction de Te ou Ne pour tout les niveaux
 
@@ -351,8 +355,8 @@ for gaz=gaz_i:gaz_f %On fait le calcul théorique de l'intensité de raies pour 2=
 end %fin boucle sur les gaz
 
 %TeGraphesPercentFond(gaz,Ne,Te,ContributionFond)
-a(:,:)=I_theo(1,:,:);
-    save('I_theo.mat','a')
+% a(:,:)=I_theo(1,:,:);
+%     save('I_theo.mat','a')
 %     stop
 
 clear Allrates1s_2p AllratesGround_2p AllratesGround_1s AllratesQuenching_1s rates_neutral position
@@ -396,7 +400,7 @@ for k=1:length(fileNames)
     %% Boucles d'évaluation de l'erreur de chaque raie aux températures et densite de 1s regardées
     if nbrderaies(k) > 1             %Vérification s'il y a au moins 2 raies à ajuster      
             %% Calcul de l'erreur
-            [STDErr,NeOptimal,TempOptimal,mecanismeOptimal(k),MoyenneOptimale(k),ErreurOptimal(k),FitCorrige(k,:)] = TeCalculErreur_TRG(ChoixErreur,Ne,Te,mecanismes,I_exp(k,:),I_theo,FitCorrige(k,:),P,sig_I_theo,sig_I_exp(k,:));
+            [STDErr,NeOptimal,TempOptimal,mecanismeOptimal(k),MoyenneOptimale(k),ErreurOptimal(k),FitCorrige(k,:)] = TeCalculErreur_TRG(ChoixErreur,Ne,Te,Quench,mecanismes,I_exp(k,:),I_theo,FitCorrige(k,:),P,sig_I_theo,sig_I_exp(k,:));
 
             %% Extraction des résultats
             NeOpt(k)=NeOptimal(1); NeMin(k)=NeOptimal(2); NeMax(k)=NeOptimal(3); PosNeMin(1)=NeOptimal(4);
@@ -423,12 +427,12 @@ for k=1:length(fileNames)
               
               
              %% Obtention des graphiques à l'optimum si désiré dans les inputs
-           if TeGraph2==1
-                TeGraphes2_TRG(Ne,Te,STDErr,I_theo(PosNeMin(1),PosTeMin(1),:),sig_I_theo(PosNeMin(1),PosTeMin(1),:),Thetaij(PosNeMin(1),PosTeMin(1),:),I_exp(k,:),sig_I_exp(k,:),FitCorrige(k,:),ChoixErreur,MoyenneOptimale(k),P,E,ChoixAutoabs);
+           if TeGraph2==1 %la 5iem colonne est le quench à 0... ex : STDErr(:,:,5)
+                TeGraphes2_TRG(Ne,Te,STDErr(:,:,5),I_theo(PosNeMin(1),PosTeMin(1),5,:),sig_I_theo(PosNeMin(1),PosTeMin(1),5,:),Thetaij(PosNeMin(1),PosTeMin(1),5,:),I_exp(k,:),sig_I_exp(k,:),FitCorrige(k,:),ChoixErreur,MoyenneOptimale(k),P,E,ChoixAutoabs);
            end
                         %% Obtention des graphiques à l'optimum si désiré dans les inputs
             if TeGraph3==1
-                TeGraphes3_TRG(densite2p(:,PosNeMin(1),PosTeMin(1),:),Gains2p(:,PosNeMin(1),PosTeMin(1),:,:),Pertes2p(:,PosNeMin(1),PosTeMin(1),:,:),ContributionFond(:,PosNeMin(1),PosTeMin(1),:),energie1s,energie2p,densite1s(:,PosNeMin(1),PosTeMin(1),:),Gains1s(:,PosNeMin(1),PosTeMin(1),:,:),Pertes1s(:,PosNeMin(1),PosTeMin(1),:,:),ng);
+                TeGraphes3_TRG(densite2p(:,PosNeMin(1),PosTeMin(1),5,:),Gains2p(:,PosNeMin(1),PosTeMin(1),5,:,:),Pertes2p(:,PosNeMin(1),PosTeMin(1),5,:,:),ContributionFond(:,PosNeMin(1),PosTeMin(1),5,:),energie1s,energie2p,densite1s(:,PosNeMin(1),PosTeMin(1),5,:),Gains1s(:,PosNeMin(1),PosTeMin(1),5,:,:),Pertes1s(:,PosNeMin(1),PosTeMin(1),5,:,:),ng);
             end
     
             
