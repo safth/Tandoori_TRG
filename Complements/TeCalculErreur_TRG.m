@@ -85,12 +85,6 @@ IncertitudeNm=zeros(length(ne),length(Te));
 %   save('All_ratio.mat','Erreur')
 %   save('ne.mat','ne')
 %   save('Te.mat','Te')
-
-    %% Te à la valeur de Ne input
-   Ne_input =  round(size(Erreur,1)/2);
-   pos_Te_min_1= find(Erreur(Ne_input,:)==min(Erreur(Ne_input,:)));
-
-
     %% Obtention de la position où se trouve la plus petite erreur
 
     [PosNeMin, PosTeMin]=find(Erreur==min(min(Erreur)));

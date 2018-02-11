@@ -33,7 +33,19 @@ warning('off') % ne pas affichier les avertissements lors du calcul des 1s (1s1 
     Te =InfoTe(1):InfoTe(3):InfoTe(2);   
     
 % Range de densité électronique scannée (m^-3)
-   Ne =logspace(log10(InfoNe(1)/InfoNe(2)),log10(InfoNe(1)*InfoNe(2)),InfoNe(3));  %logspace(X,Y,Z)= 10^X à 10^Y, avec Z valeurs entre les deux 
+   %5mtorr
+   p=1; %changer p quand je change la pression
+                                %20   10   5     2
+debut                       = [5.2   5.2  5.1   5.2]; %20 10 5 2mtorr
+fin                         = [72.7  82  78.8   78]; %fin colonne cm %78.8
+nb_spectres                 = [72    34   31    35]; %35
+                                 %20      10       5        2
+Val_Pente                   = [6.3e14  4.969e14 3.358e14 1.98e14  ]; 
+n_c                         = 2.12e16;
+
+   Z=linspace(debut(p),fin(p),nb_spectres(p)); 
+   Ne=  -Val_Pente(p)*Z+Val_Pente(p)*fin(p)+n_c; %4.7209e+15
+   
     
 % Choix d'affichage des différents graphes (=0 n'affice pas, =1 affiche)
     GraphExp=InfoGraphes(1);         %Graphe de l'extraction des intensité expérimentales des raies ET des fits gaussiens sur les raies
@@ -396,7 +408,7 @@ for k=1:length(fileNames)
     %% Boucles d'évaluation de l'erreur de chaque raie aux températures et densite de 1s regardées
     if nbrderaies(k) > 1             %Vérification s'il y a au moins 2 raies à ajuster      
             %% Calcul de l'erreur
-            [STDErr,NeOptimal,TempOptimal,mecanismeOptimal(k),MoyenneOptimale(k),ErreurOptimal(k),FitCorrige(k,:)] = TeCalculErreur_TRG(ChoixErreur,Ne,Te,mecanismes,I_exp(k,:),I_theo,FitCorrige(k,:),P,sig_I_theo,sig_I_exp(k,:));
+            [STDErr,NeOptimal,TempOptimal,mecanismeOptimal(k),MoyenneOptimale(k),ErreurOptimal(k),FitCorrige(k,:)] = TeCalculErreur_TRG(ChoixErreur,Ne(k),Te,mecanismes,I_exp(k,:),I_theo,FitCorrige(k,:),P,sig_I_theo,sig_I_exp(k,:));
 
             %% Extraction des résultats
             NeOpt(k)=NeOptimal(1); NeMin(k)=NeOptimal(2); NeMax(k)=NeOptimal(3); PosNeMin(1)=NeOptimal(4);

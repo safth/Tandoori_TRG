@@ -320,6 +320,31 @@ end
                     Fit788 Fit820  Fit823 Fit828 Fit834 Fit881 Fit895 Fit904]; %Xe
          Overwrite=abs(1-Overwrite);
          
+         
+             for i=3:3
+
+             if i==1
+                 %Te All
+                 Overwrite=[ 0     0     0     0     0     0     0     0     1     1     1     1     1     1     1     1     0     1     1     1     1     1 ...
+                             1     0     0     1     0     0     1     1     0     0     0     1     1     1     1     1     0     0     0];
+             Commentaire = 'Te_All'
+             InfoTe=[1 3 0.01];
+
+             elseif i==2
+                 % Te_Tail
+                 Overwrite=[1     0     0     0     0     0     0     0     1     1     0     0     0     0     0     0     0     0     0     0     0     0 ...
+                            0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0     0];
+             Commentaire = 'Te_Tail'
+             InfoTe=[2 15 0.1];
+             elseif i==3    
+                 % Te_Low
+                 Overwrite=[0     0     0     0     0     0     0     0     0     0     1     0     1     0     0     1     0     0     0     0     0     0 ...
+                            1     0     0     0     0     0     1     0     0     0     0     0     1     1     0     0     0     0     0];
+             Commentaire = 'Te_Low'
+             InfoTe=[1 4 0.01];
+         end
+         
+         
          %% rejette le loop pour un gaz qu'on ne check pas!!
          global gaz_i gaz_f
          gaz_f = 5 ;
@@ -358,7 +383,7 @@ end
          TeMax=str2double(get(handles.TeMax,'String'));
          TeStep=str2double(get(handles.TeStep,'String'));
          
-         InfoTe=[TeMin TeMax TeStep];
+        % InfoTe=[TeMin TeMax TeStep];
                 
          %% Ne
          %pour la STD normal sur un range décidé
@@ -396,7 +421,6 @@ end
         %% Choix résonant et Autoabsorption
             ChoixAutoabs =  get(handles.choixAutoabs,'Value');    
         %% Commentaire à mettre en output
-        Commentaire = get(handles.Commentaire,'String')
         %% Choix des dimension du réacteur
         if get(handles.ChoixDimension,'value')==1 %
             ChoixDimension='Dimension_Garofano.txt';
@@ -465,11 +489,15 @@ end
           
          
          %% Execution du code
-         tic %timer
-         Calcul_Te_TRG_ViaInterface(Overwrite,InfoGraphes,InfoTe,InfoNe,filetype,Tg,P_tot,l,FctRep,ChoixErreur,ChoixHautePression,ChoixAutoabs,Commentaire,flow,exposant,ChoixDimension,sig_l); 
-         cd(old);
-         toc %fin du timer
-         beep % fait un son pour la fin du calcul
+
+             tic %timer
+             Calcul_Te_TRG_ViaInterface(Overwrite,InfoGraphes,InfoTe,InfoNe,filetype,Tg,P_tot,l,FctRep,ChoixErreur,ChoixHautePression,ChoixAutoabs,Commentaire,flow,exposant,ChoixDimension,sig_l); 
+             cd(old);
+             toc %fin du timer
+             beep % fait un son pour la fin du calcul
+         
+         end
+         
 %          load handel % fait un son pour la fin du calcul
 %          sound(y,Fs) % fait un son pour la fin du calcul
 
