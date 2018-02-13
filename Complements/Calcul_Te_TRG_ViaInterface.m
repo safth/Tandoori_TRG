@@ -34,7 +34,7 @@ warning('off') % ne pas affichier les avertissements lors du calcul des 1s (1s1 
     
 % Range de densité électronique scannée (m^-3)
    %5mtorr
-   p=1; %changer p quand je change la pression
+   p=2; %changer p quand je change la pression
                                 %20   10   5     2
 debut                       = [5.2   5.2  5.1   5.2]; %20 10 5 2mtorr
 fin                         = [72.7  82  78.8   78]; %fin colonne cm %78.8
