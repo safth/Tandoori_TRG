@@ -320,8 +320,7 @@ end
                     Fit788 Fit820  Fit823 Fit828 Fit834 Fit881 Fit895 Fit904]; %Xe
          Overwrite=abs(1-Overwrite);
          
-         
-             for i=2:2
+             for i=4:4
 
              if i==1
                  %Te All
@@ -342,6 +341,12 @@ end
                             1     0     0     0     0     0     1     0     0     0     0     0     1     1     0     0     0     0     0];
              Commentaire = 'Te_Low'
              InfoTe=[1 4 0.01];
+             elseif i==4    
+                 % Te_High
+                 Overwrite=[0     0     0     0     0     0     0     0     1     1     0     0     0     0     0     0 ...
+                            0     0     0     0     0     1     0     1     0     0     0     0     0     0     0     0   0     1     0     0     1     1     0     0     0];
+             Commentaire = 'Te_High'
+             InfoTe=[2 10 0.01];
          end
          
          
