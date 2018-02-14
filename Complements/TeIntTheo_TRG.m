@@ -143,10 +143,11 @@ for t=1:length(Te)
         end
     end 
     
-residu=10e21; %start le résidu à quelquechose de très gros. 
-iter=1;
+residu1=10e21; %start le résidu à quelquechose de très gros. 
+iter1=1;
 temp_n1sX = zeros(1,5);
-while residu > temp_n1sX(5)/100 %boucle car 1s3 dépend de 1s5 et vice versa
+n2p = zeros(1,10);
+while residu1 > temp_n1sX(5)/100 %boucle car 1s3 dépend de 1s5 et vice versa
     %remet n1sx à zero pour chaque itération
     n1sX = zeros(1,5);
     
@@ -169,21 +170,21 @@ while residu > temp_n1sX(5)/100 %boucle car 1s3 dépend de 1s5 et vice versa
 
 
     %% Mécanismes dépendant de la densité des 1s    
-    [Depop2p,DepopRadFond,PopAutoAbs,DepopMix,PopMix,DepopSuperelestique,DepopIonisation,DepopNeutre,PopUpDown,PopNeutre,DepopMixAutoAbs,PopMixAutoAbs] = TeDepopulation_Metastable_TRG(t+IndexOffset-1,gaz,ng,ne,Aij1s,Thetaij_1s,rate1s_2p,rateQuenching,rateNeutral,Br2p,nm_Ar,Thetaij_2p,Aij2p);
+    [Depop2p,DepopRadFond,PopAutoAbs,DepopMix,PopMix,DepopSuperelestique,DepopIonisation,DepopNeutre,PopUpDown,PopNeutre,DepopMixAutoAbs,PopMixAutoAbs] = TeDepopulation_Metastable_TRG(t+IndexOffset-1,gaz,ng,ne,Aij1s,Thetaij_1s,rate1s_2p,rateQuenching,rateNeutral,Br2p,nm_Ar,Thetaij_2p,Aij2p,n2p);
 
-    depopulation1s=Depop2p+DepopRadFond-PopAutoAbs+DepopMix-PopMix+DepopSuperelestique+DepopIonisation + DepopNeutre*2^(0) - PopUpDown + DepopMixAutoAbs - PopMixAutoAbs;
-    population1s=PopFond;
+    depopulation1s=Depop2p+DepopRadFond-PopAutoAbs+DepopMix-PopMix+DepopSuperelestique+DepopIonisation + DepopNeutre*2^(0) - PopUpDown;
+    population1s=PopFond-DepopMixAutoAbs+PopMixAutoAbs;
     
     %% Obtention de la densité des niveaux pour avoir l'etat stationnaire depopulation=population
 
     
     n1sX=linsolve(depopulation1s,population1s);
     
-    residu = abs(n1sX(5)-temp_n1sX(5)); %la valeur de densité - celle d'avant (juste le 1s5)
+    residu1 = abs(n1sX(5)-temp_n1sX(5)); %la valeur de densité - celle d'avant (juste le 1s5)
     temp_n1sX = n1sX; %on assigne temp_n1sx la valeur calculé
-    y(iter)=n1sX(5);
-iter=iter+1;
-end
+    y(iter1)=n1sX(5);
+iter1=iter1+1;
+
 densite1s(t,:)=n1sX;
 
 densite1s(isnan(densite1s)) = 0 ; %enleve le NaN en 1s1
@@ -217,7 +218,7 @@ densite1s(isnan(densite1s)) = 0 ; %enleve le NaN en 1s1
 %  =========================================================== 
 %calcul des incertide sur les taux de réactions
 [sig_PopFond]= TePopulation_Metastable_TRG(ng(gaz),ne,sig_rateGround_1s(:,t+IndexOffset-1));
-[sig_Depop2p,sig_DepopRadFond,sig_PopAutoAbs,sig_DepopMix,sig_PopMix,sig_DepopSuperelestique,sig_DepopIonisation,sig_DepopNeutre,sig_PopUpDown] = TeDepopulation_Metastable_TRG(t+IndexOffset-1,gaz,ng,ne,Aij1s,Thetaij_1s,sig_rate1s_2p,sig_rateQuenching,sig_rateNeutral,Br2p,nm_Ar,Thetaij_2p,Aij2p); % TODO
+[sig_Depop2p,sig_DepopRadFond,sig_PopAutoAbs,sig_DepopMix,sig_PopMix,sig_DepopSuperelestique,sig_DepopIonisation,sig_DepopNeutre,sig_PopUpDown] = TeDepopulation_Metastable_TRG(t+IndexOffset-1,gaz,ng,ne,Aij1s,Thetaij_1s,sig_rate1s_2p,sig_rateQuenching,sig_rateNeutral,Br2p,nm_Ar,Thetaij_2p,Aij2p,n2p); % TODO
 
 iter=0; % boucle qui compte le nombre d'itération
 residu=10e21; %start le résidu à quelquechose de très gros.
@@ -316,6 +317,8 @@ sig_densite1s(t,4)=sig_densite1s(t,5)*densite1s(t,4)/densite1s(t,5);
     population=PopNm2p+PopFond2p;
     
     densite2p(t,:)=linsolve(depopulation,population);              %depopulation*density=population
+    n2p(:) =densite2p(t,:);
+
     
     
     %% ============== Suivi de l'influence des processus de peuplement et de dépeuplement des niveaux 2p ==============   
@@ -399,7 +402,7 @@ end
 %     xlabel('Niveau 2p_x','FontSize',11,'fontweight','bold');
 % 
 %  end
-
+end
     %% ============== Intensité des raies tenant compte de l'auto-absorption ==============
         if gaz==2 % Raie de néon
             I585=densite2p(t,1)*Aij2p(1,2)*Thetaij(1,2);             %2p1-1s2
