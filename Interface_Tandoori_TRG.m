@@ -320,7 +320,7 @@ end
                     Fit788 Fit820  Fit823 Fit828 Fit834 Fit881 Fit895 Fit904]; %Xe
          Overwrite=abs(1-Overwrite);
          
-             for i=4:4
+             for i=1:1
 
              if i==1
                  %Te All

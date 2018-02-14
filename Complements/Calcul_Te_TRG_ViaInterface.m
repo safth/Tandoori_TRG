@@ -34,13 +34,13 @@ warning('off') % ne pas affichier les avertissements lors du calcul des 1s (1s1 
     
 % Range de densité électronique scannée (m^-3)
    %5mtorr
-   p=4; %changer p quand je change la pression
-                                %20   10   5     2
-debut                       = [5.2   5.2  5.1   5.2]; %20 10 5 2mtorr
-fin                         = [72.7  82  78.8   78]; %fin colonne cm %78.8
-nb_spectres                 = [72    34   31    35]; %35
-                                 %20      10       5        2
-Val_Pente                   = [6.3e14  4.969e14 3.358e14 1.98e14  ]; 
+   p=1; %changer p quand je change la pression
+                                %50 20   10   5     2
+debut                       = [5.2 5.2   5.2  5.1   5.2]; %20 10 5 2mtorr
+fin                         = [73 72.7  82  78.8   78]; %fin colonne cm %78.8
+nb_spectres                 = [70 72    34   31    35]; %35
+                                 %50 20      10       5        2
+Val_Pente                   = [1e15 6.3e14  4.969e14 3.358e14 1.98e14  ]; 
 n_c                         = 2.12e16;
 
    Z=linspace(debut(p),fin(p),nb_spectres(p)); 
