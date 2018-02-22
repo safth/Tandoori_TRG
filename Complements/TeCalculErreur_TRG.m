@@ -78,6 +78,7 @@ IncertitudeNm=zeros(length(ne),length(Te));
             Erreur(j,i)=(100*std(ratio,w))/Moyenne(j,i);
            
             
+%             Output(j,i,:) = Erreur; %prend les Ratios en output pis les save apres sous All_ratio.mat
 
         end
     end

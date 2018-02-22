@@ -41,8 +41,6 @@ warning('off') % ne pas affichier les avertissements lors du calcul des 1s (1s1 
     TeGraph2=InfoGraphes(3);         %graphe des mécanismes à l'optimum
     TeGraph3=InfoGraphes(5);         %Graphes du fit des raies, 3D de l'erreur et STD
     TeGrapheFinaux=InfoGraphes(4);   %Graphes de l'évolution de NeOptimal et TeOptimal en fonction des fichiers
-    
-    global ChoixTransEx;
 
 %% ###########################################################################################
 %% ###################################### DÉBUT DU CODE ######################################
@@ -242,14 +240,12 @@ disp ('Calcul de l''intensité théorique des raies...')
     VanDerWaals =zeros(length(Ne),length(Te),length(E));
     Resonant    =zeros(length(Ne),length(Te),length(E));
 
-    Gains2p    =zeros(5,length(Ne),length(Te),10,5); %gaz #1à5 avec 10 2p chacuns
+    Gains2p    =zeros(5,length(Ne),length(Te),10,4); %gaz #1à5 avec 10 2p chacuns
     Pertes2p   =zeros(5,length(Ne),length(Te),10,3);
     densite2p     =zeros(5,length(Ne),length(Te),10);
     ContributionFond    =zeros(5,length(Ne),length(Te),10);
     densite1s     =zeros(5,length(Ne),length(Te),5);
-    sig_densite1s     =zeros(5,length(Ne),length(Te),5);
-
-    Gains1s    =zeros(5,length(Ne),length(Te),5,5); %gaz #1à5 avec 10 2p chacuns
+    Gains1s    =zeros(5,length(Ne),length(Te),5,4); %gaz #1à5 avec 10 2p chacuns
     Pertes1s   =zeros(5,length(Ne),length(Te),5,6);
     
     
@@ -309,7 +305,7 @@ for gaz=gaz_i:gaz_f %On fait le calcul théorique de l'intensité de raies pour 2=
         waitbar(wait/(length(gaz_i:gaz_f)*length(Ne)),h,'Calcul théorique') 
         wait=wait+1;
         %% Calcul du bilan de population: gains=pertes
-       [densite_1s,sig_densite_1s,densite_2p,sig_density,Gains_2p,Pertes_2p,Emission,PopFond,Mecanisms,energie_1s,energie_2p,Gains_1s,Pertes_1s]=TeIntTheo_TRG(gaz,Ne(j),Te,rateGround_1s,rateGround_2p,rate1s_2p,rateQuenching,rateNeutral,sig_rateGround_1s,sig_rateGround_2p,sig_rate1s_2p,sig_rateQuenching,sig_rateNeutral,Tg,longueur,AllIntegral,P,1,0,flow,ChoixAutoabs,sig_longueur,densite1s(3,j,:,:),sig_densite1s(3,j,:,:));
+       [densite_1s,sig_densite1s,densite_2p,sig_density,Gains_2p,Pertes_2p,Emission,PopFond,Mecanisms,energie_1s,energie_2p,Gains_1s,Pertes_1s]=TeIntTheo_TRG(gaz,Ne(j),Te,rateGround_1s,rateGround_2p,rate1s_2p,rateQuenching,rateNeutral,sig_rateGround_1s,sig_rateGround_2p,sig_rate1s_2p,sig_rateQuenching,sig_rateNeutral,Tg,longueur,AllIntegral,P,1,0,flow,ChoixAutoabs,sig_longueur,densite1s(3,j,:,:));
        %% Extraction et mise en mémoire des données pour chaque fichier, densité électronique et Te
 
        for i=1:length(Te)
@@ -325,7 +321,7 @@ for gaz=gaz_i:gaz_f %On fait le calcul théorique de l'intensité de raies pour 2=
             end  
             for l=1:10 
                 %for k=1:size(Gains_2p,1)% Pour chaque niveau...         
-                Gains2p(gaz,j,i,l,:)=Gains_2p(:,i,l);        %1=fond,2=Nm,3=coll2P,4=radtrap, 5 = Transfert Radiatif 
+                Gains2p(gaz,j,i,l,:)=Gains_2p(:,i,l);        %1=fond,2=Nm,3=coll2P,4=radtrap
                 Pertes2p(gaz,j,i,l,:)=Pertes_2p(:,i,l);      % 1=rad 2=coll2p 3=coll1s
                 %end
                 densite2p(gaz,j,i,l)=densite_2p(i,l);            % Densité des 2p
@@ -336,7 +332,6 @@ for gaz=gaz_i:gaz_f %On fait le calcul théorique de l'intensité de raies pour 2=
                  Gains1s(gaz,j,i,l,:)=Gains_1s(:,i,l);  
                  Pertes1s(gaz,j,i,l,:)=Pertes_1s(:,i,l); 
                  densite1s(gaz,j,i,l)=densite_1s(i,l);
-                 sig_densite1s(gaz,j,i,l)=sig_densite_1s(i,l);
              end
              energie1s(gaz,:)=energie_1s(:);
              energie2p(gaz,:)=energie_2p(:);
@@ -347,14 +342,18 @@ for gaz=gaz_i:gaz_f %On fait le calcul théorique de l'intensité de raies pour 2=
     end    %Fin Boucle Ne
 
     
-    %% mise en graphique des %population en fonction de Te ou Ne pour tout les niveaux
+
+
 
    
 end %fin boucle sur les gaz
 
-%TeGraphesPercentFond(gaz,Ne,Te,ContributionFond)
-a(:,:)=I_theo(1,:,:);
-    save('I_theo.mat','a')
+    %% mise en graphique des %population en fonction de Te ou Ne pour tout les niveaux
+
+         %TeGraphesPercentFond(gaz,Ne,Te,ContributionFond)
+         
+% a(:,:)=I_theo(1,:,:);
+%     save('I_theo.mat','a')
 %     stop
 
 clear Allrates1s_2p AllratesGround_2p AllratesGround_1s AllratesQuenching_1s rates_neutral position
@@ -366,12 +365,12 @@ disp('Intensités théoriques calculées')
 disp('Comparaison expérience-théorie...')
 
 %% ============== Création des fichiers textes contenant les infos pertinentes pour chaque fichier analysé ==============
-if exist('Te.out', 'file')==0 % n'écrit pas le Header si il est deja fait
+if exist('Te.txt', 'file')==0 % n'écrit pas le Header si il est deja fait
     fileID = fopen('Te.out','a');               
-    formatSpec = '%-22s\t %s \t%s \t%s \t%s \t%s \t%s \t%s \t%s \t%s \t%s \t%s\r\n';  
-    fprintf(fileID,formatSpec,'------NomFichier------','TeOpt','TeMin','TeMax','NeOpt   ','% STD','Poids','exp','HighP','AutoAbs','Transfert','Commentaire');
-else
     formatSpec = '%-22s\t %s \t%s \t%s \t%s \t%s \t%s \t%s \t%s \t%s \t%s\r\n';  
+    fprintf(fileID,formatSpec,'------NomFichier------','TeOpt','TeMin','TeMax','NeOpt   ','% STD','Poids','exp','HighP','AutoAbs','Commentaire');
+else
+    formatSpec = '%-22s\t %s \t%s \t%s \t%s \t%s \t%s \t%s \t%s \t%s\r\n';  
     fileID = fopen('Te.out','a');   
 end
 
@@ -404,24 +403,23 @@ for k=1:length(fileNames)
             NeOpt(k)=NeOptimal(1); NeMin(k)=NeOptimal(2); NeMax(k)=NeOptimal(3); PosNeMin(1)=NeOptimal(4);
             TeOptimal(k)=TempOptimal(1); TeMin(k)=TempOptimal(2); TeMax(k)=TempOptimal(3); PosTeMin(1)=TempOptimal(4);
             
-            %% ecriture des densité de metastable
+            %% 'ecriture des densité de metastable
+%              x(:) = densite1s(3,PosNeMin(1),PosTeMin(1),:)
                fprintf(fileID3,formatSpec3,densite1s(3,PosNeMin(1),PosTeMin(1),2:5)); 
             %% Export de toute les fichiers...
-                 if TeGraph1==1 
-  
-            file(:,:)=Gains2p(3,PosNeMin(1),PosTeMin(1),:,:);
-            file2(:,:)=Pertes2p(3,PosNeMin(1),PosTeMin(1),:,:);
-            file3(:,:)=Gains1s(3,PosNeMin(1),PosTeMin(1),:,:);
-            file4(:,:)=Pertes1s(3,PosNeMin(1),PosTeMin(1),:,:);
-            file5(:,1)=I_theo(PosNeMin(1),PosTeMin(1),:);
-            file5(:,2)=I_exp(1,:);
-            file5(:,3)=1-Thetaij(PosNeMin(1),PosTeMin(1),:);
-            save('Gains2P.mat','file')
-            save('Pertes2P.mat','file2')
-            save('Gains1s.mat','file3')
-            save('Pertes1s.mat','file4')
-            save('I_th-I_exp-AutoAbs.mat','file5')
-   end
+%             file(:,:)=Gains2p(3,PosNeMin(1),PosTeMin(1),:,:);
+%             file2(:,:)=Pertes2p(3,PosNeMin(1),PosTeMin(1),:,:);
+%             file3(:,:)=Gains1s(3,PosNeMin(1),PosTeMin(1),:,:);
+%             file4(:,:)=Pertes1s(3,PosNeMin(1),PosTeMin(1),:,:);
+%             file5(:,1)=I_theo(PosNeMin(1),PosTeMin(1),:);
+%             file5(:,2)=I_exp(1,:);
+%             file5(:,3)=1-Thetaij(PosNeMin(1),PosTeMin(1),:);
+%             save('Gains2P.mat','file')
+%             save('Pertes2P.mat','file2')
+%             save('Gains1s.mat','file3')
+%             save('Pertes1s.mat','file4')
+%             save('I_th-I_exp-AutoAbs.mat','file5')
+
 
               
               
@@ -445,7 +443,7 @@ for k=1:length(fileNames)
         mecanismeOptimal(k)=0;
       
         %% Écriture des paramètres optimaux dans un fichier
-            formatSpec = '%-22s\t %-5s \t%-5s \t%-5s \t%-12s \t%-5s \t%-5s \t%-5s \t%-13s \t%-10s \t%-10s \t%-20s\r\n';  
+            formatSpec = '%-22s\t %-5s \t%-5s \t%-5s \t%-12s \t%-5s \t%-5s \t%-5s \t%-13s \t%-5s \t%-20s\r\n';  
             Table1{1}=char(fileNames(k));
             Table1{2}=num2str(TeOptimal(k),4);
             Table1{3}=num2str(TeMin(k),4);
@@ -456,20 +454,23 @@ for k=1:length(fileNames)
             Table1{8}=num2str(exposant);
             Table1{9}=num2str(ChoixHautePression);
             Table1{10}=num2str(ChoixAutoabs);
-            Table1{11}=num2str(ChoixTransEx);
-            Table1{12}=Commentaire;
+            Table1{11}=Commentaire;
             fprintf(fileID,formatSpec,Table1{:});
       
       disp('Nombre de raies à comparer insuffisant. Tous les paramètres ont été mis à zéro. You Died.')
     end %fin boucle nbr de raies minimale
     
+        %% Mise en graphique des rapports I_obs/_calc pour un Ne donné
+     if TeGraph1==1 
+         TeGraphes1_TRG(Ne,Te,I_theo(:,:,:),I_exp(1,:),FitCorrige(k,:),MoyenneOptimale(k),NeOptimal(4))
+     end
       waitbar(k/length(fileNames),h,'Calcul d''erreur')   
     clear IntensiteSD metSD tempSD Emission Gains Pertes density PosTeMin PosN1s2Min SEGD
 end %Fin boucle fichiers
             disp('Écriture des résultats')
 for k=1:length(fileNames)
             %% Écriture des paramètres optimaux dans un fichier
-            formatSpec = '%-22s\t %-5s \t%-5s \t%-5s \t%-10s \t%-6s \t%-5s \t%-5s \t%-5s \t%-10s \t%-10s \t%-20s\r\n';  
+            formatSpec = '%-22s\t %-5s \t%-5s \t%-5s \t%-10s \t%-6s \t%-5s \t%-5s \t%-5s \t%-6s \t%-20s\r\n';  
             Table1{1}=char(fileNames(k));
             Table1{2}=num2str(TeOptimal(k),4);
             Table1{3}=num2str(TeMin(k),4);
@@ -480,8 +481,7 @@ for k=1:length(fileNames)
             Table1{8}=num2str(exposant);
             Table1{9}=num2str(ChoixHautePression);
             Table1{10}=num2str(ChoixAutoabs);
-            Table1{11}=num2str(ChoixTransEx);
-            Table1{12}=Commentaire;
+            Table1{11}=Commentaire;
             fprintf(fileID,formatSpec,Table1{:});
 
                 %% Écriture des raies utilisées dans un fichier
