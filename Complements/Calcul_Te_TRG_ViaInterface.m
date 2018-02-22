@@ -41,6 +41,8 @@ warning('off') % ne pas affichier les avertissements lors du calcul des 1s (1s1 
     TeGraph2=InfoGraphes(3);         %graphe des mécanismes à l'optimum
     TeGraph3=InfoGraphes(5);         %Graphes du fit des raies, 3D de l'erreur et STD
     TeGrapheFinaux=InfoGraphes(4);   %Graphes de l'évolution de NeOptimal et TeOptimal en fonction des fichiers
+    
+    global ChoixTransEx;
 
 %% ###########################################################################################
 %% ###################################### DÉBUT DU CODE ######################################
@@ -366,10 +368,10 @@ disp('Comparaison expérience-théorie...')
 %% ============== Création des fichiers textes contenant les infos pertinentes pour chaque fichier analysé ==============
 if exist('Te.out', 'file')==0 % n'écrit pas le Header si il est deja fait
     fileID = fopen('Te.out','a');               
-    formatSpec = '%-22s\t %s \t%s \t%s \t%s \t%s \t%s \t%s \t%s \t%s \t%s\r\n';  
-    fprintf(fileID,formatSpec,'------NomFichier------','TeOpt','TeMin','TeMax','NeOpt   ','% STD','Poids','exp','HighP','AutoAbs','Commentaire');
+    formatSpec = '%-22s\t %s \t%s \t%s \t%s \t%s \t%s \t%s \t%s \t%s \t%s \t%s\r\n';  
+    fprintf(fileID,formatSpec,'------NomFichier------','TeOpt','TeMin','TeMax','NeOpt   ','% STD','Poids','exp','HighP','AutoAbs','Transfert','Commentaire');
 else
-    formatSpec = '%-22s\t %s \t%s \t%s \t%s \t%s \t%s \t%s \t%s \t%s\r\n';  
+    formatSpec = '%-22s\t %s \t%s \t%s \t%s \t%s \t%s \t%s \t%s \t%s \t%s\r\n';  
     fileID = fopen('Te.out','a');   
 end
 
@@ -402,23 +404,24 @@ for k=1:length(fileNames)
             NeOpt(k)=NeOptimal(1); NeMin(k)=NeOptimal(2); NeMax(k)=NeOptimal(3); PosNeMin(1)=NeOptimal(4);
             TeOptimal(k)=TempOptimal(1); TeMin(k)=TempOptimal(2); TeMax(k)=TempOptimal(3); PosTeMin(1)=TempOptimal(4);
             
-            %% 'ecriture des densité de metastable
-%              x(:) = densite1s(3,PosNeMin(1),PosTeMin(1),:)
+            %% ecriture des densité de metastable
                fprintf(fileID3,formatSpec3,densite1s(3,PosNeMin(1),PosTeMin(1),2:5)); 
             %% Export de toute les fichiers...
-%             file(:,:)=Gains2p(3,PosNeMin(1),PosTeMin(1),:,:);
-%             file2(:,:)=Pertes2p(3,PosNeMin(1),PosTeMin(1),:,:);
-%             file3(:,:)=Gains1s(3,PosNeMin(1),PosTeMin(1),:,:);
-%             file4(:,:)=Pertes1s(3,PosNeMin(1),PosTeMin(1),:,:);
-%             file5(:,1)=I_theo(PosNeMin(1),PosTeMin(1),:);
-%             file5(:,2)=I_exp(1,:);
-%             file5(:,3)=1-Thetaij(PosNeMin(1),PosTeMin(1),:);
-%             save('Gains2P.mat','file')
-%             save('Pertes2P.mat','file2')
-%             save('Gains1s.mat','file3')
-%             save('Pertes1s.mat','file4')
-%             save('I_th-I_exp-AutoAbs.mat','file5')
-
+                 if TeGraph1==1 
+  
+            file(:,:)=Gains2p(3,PosNeMin(1),PosTeMin(1),:,:);
+            file2(:,:)=Pertes2p(3,PosNeMin(1),PosTeMin(1),:,:);
+            file3(:,:)=Gains1s(3,PosNeMin(1),PosTeMin(1),:,:);
+            file4(:,:)=Pertes1s(3,PosNeMin(1),PosTeMin(1),:,:);
+            file5(:,1)=I_theo(PosNeMin(1),PosTeMin(1),:);
+            file5(:,2)=I_exp(1,:);
+            file5(:,3)=1-Thetaij(PosNeMin(1),PosTeMin(1),:);
+            save('Gains2P.mat','file')
+            save('Pertes2P.mat','file2')
+            save('Gains1s.mat','file3')
+            save('Pertes1s.mat','file4')
+            save('I_th-I_exp-AutoAbs.mat','file5')
+   end
 
               
               
@@ -442,7 +445,7 @@ for k=1:length(fileNames)
         mecanismeOptimal(k)=0;
       
         %% Écriture des paramètres optimaux dans un fichier
-            formatSpec = '%-22s\t %-5s \t%-5s \t%-5s \t%-12s \t%-5s \t%-5s \t%-5s \t%-13s \t%-5s \t%-20s\r\n';  
+            formatSpec = '%-22s\t %-5s \t%-5s \t%-5s \t%-12s \t%-5s \t%-5s \t%-5s \t%-13s \t%-10s \t%-10s \t%-20s\r\n';  
             Table1{1}=char(fileNames(k));
             Table1{2}=num2str(TeOptimal(k),4);
             Table1{3}=num2str(TeMin(k),4);
@@ -453,23 +456,20 @@ for k=1:length(fileNames)
             Table1{8}=num2str(exposant);
             Table1{9}=num2str(ChoixHautePression);
             Table1{10}=num2str(ChoixAutoabs);
-            Table1{11}=Commentaire;
+            Table1{11}=num2str(ChoixTransEx);
+            Table1{12}=Commentaire;
             fprintf(fileID,formatSpec,Table1{:});
       
       disp('Nombre de raies à comparer insuffisant. Tous les paramètres ont été mis à zéro. You Died.')
     end %fin boucle nbr de raies minimale
     
-        %% Mise en graphique des rapports I_obs/_calc pour un Ne donné
-     if TeGraph1==1 
-         TeGraphes1_TRG(Ne,Te,I_theo(:,:,:),I_exp(1,:),FitCorrige(k,:),MoyenneOptimale(k),NeOptimal(4))
-     end
       waitbar(k/length(fileNames),h,'Calcul d''erreur')   
     clear IntensiteSD metSD tempSD Emission Gains Pertes density PosTeMin PosN1s2Min SEGD
 end %Fin boucle fichiers
             disp('Écriture des résultats')
 for k=1:length(fileNames)
             %% Écriture des paramètres optimaux dans un fichier
-            formatSpec = '%-22s\t %-5s \t%-5s \t%-5s \t%-10s \t%-6s \t%-5s \t%-5s \t%-5s \t%-6s \t%-20s\r\n';  
+            formatSpec = '%-22s\t %-5s \t%-5s \t%-5s \t%-10s \t%-6s \t%-5s \t%-5s \t%-5s \t%-10s \t%-10s \t%-20s\r\n';  
             Table1{1}=char(fileNames(k));
             Table1{2}=num2str(TeOptimal(k),4);
             Table1{3}=num2str(TeMin(k),4);
@@ -480,7 +480,8 @@ for k=1:length(fileNames)
             Table1{8}=num2str(exposant);
             Table1{9}=num2str(ChoixHautePression);
             Table1{10}=num2str(ChoixAutoabs);
-            Table1{11}=Commentaire;
+            Table1{11}=num2str(ChoixTransEx);
+            Table1{12}=Commentaire;
             fprintf(fileID,formatSpec,Table1{:});
 
                 %% Écriture des raies utilisées dans un fichier

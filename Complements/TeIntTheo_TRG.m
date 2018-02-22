@@ -163,6 +163,8 @@ n1sX=linsolve(depopulation1s,population1s);
 
 densite1s(t,:)=n1sX;
 
+
+
 densite1s(isnan(densite1s)) = 0 ; %enleve le NaN en 1s1
 
 
@@ -232,7 +234,8 @@ residu(isnan(residu)) = 0; %enleve le NaN en 1s1
 
 sig_densite1s(t,2)=sig_densite1s(t,3)*densite1s(t,2)/densite1s(t,3);
 sig_densite1s(t,4)=sig_densite1s(t,5)*densite1s(t,4)/densite1s(t,5);
-%100*sig_densite1s(t,:)./densite1s(t,:)
+100*sig_densite1s(t,:)./densite1s(t,:);
+
  %% affichage des incertitudes sur les 1s
 %  if IndexOffset>2
 %     figure1=figure;

@@ -1,4 +1,5 @@
 
+
 function varargout = Interface_Tandoori_TRG(varargin)
 
 % INTERFACE_TANDOORI_TRG MATLAB code for Interface_Tandoori_TRG.fig
@@ -23,7 +24,7 @@ function varargout = Interface_Tandoori_TRG(varargin)
 %
 % See also: GUIDE, GUIDATA, GUIHANDLES
 % Edit the above text to modify the response to help Interface_Tandoori_TRG
-% Last Modified by GUIDE v2.5 29-Sep-2017 14:25:32
+% Last Modified by GUIDE v2.5 22-Feb-2018 14:48:12
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -394,7 +395,10 @@ end
         %% Choix High Pressure Cross Section
             ChoixHautePression =  get(handles.ChoixHautePression,'Value'); 
         %% Choix résonant et Autoabsorption
-            ChoixAutoabs =  get(handles.choixAutoabs,'Value');    
+            ChoixAutoabs =  get(handles.choixAutoabs,'Value');   
+        %% Choix Transfert Excitation
+        global ChoixTransEx;
+            ChoixTransEx =  get(handles.checkTransEx,'Value');               
         %% Commentaire à mettre en output
         Commentaire = get(handles.Commentaire,'String')
         %% Choix des dimension du réacteur
@@ -833,3 +837,22 @@ function FluxHMDSO_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+
+% --- Executes on key press with focus on Graphe1 and none of its controls.
+function Graphe1_KeyPressFcn(hObject, eventdata, handles)
+% hObject    handle to Graphe1 (see GCBO)
+% eventdata  structure with the following fields (see MATLAB.UI.CONTROL.UICONTROL)
+%	Key: name of the key that was pressed, in lower case
+%	Character: character interpretation of the key(s) that was pressed
+%	Modifier: name(s) of the modifier key(s) (i.e., control, shift) pressed
+% handles    structure with handles and user data (see GUIDATA)
+
+
+% --- Executes on button press in checkTransEx.
+function checkTransEx_Callback(hObject, eventdata, handles)
+% hObject    handle to checkTransEx (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of checkTransEx

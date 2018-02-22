@@ -78,13 +78,12 @@ IncertitudeNm=zeros(length(ne),length(Te));
             Erreur(j,i)=(100*std(ratio,w))/Moyenne(j,i);
            
             
-%             Output(j,i,:) = Erreur; %prend les Ratios en output pis les save apres sous All_ratio.mat
 
         end
     end
-%   save('All_ratio.mat','Erreur')
-%   save('ne.mat','ne')
-%   save('Te.mat','Te')
+   save('All_ratio.mat','Erreur')
+   save('ne.mat','ne')
+   save('Te.mat','Te')
     %% Obtention de la position où se trouve la plus petite erreur
 
     [PosNeMin, PosTeMin]=find(Erreur==min(min(Erreur)));
