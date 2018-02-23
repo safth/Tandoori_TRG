@@ -1,4 +1,5 @@
 
+
 function varargout = Interface_Tandoori_TRG(varargin)
 
 % INTERFACE_TANDOORI_TRG MATLAB code for Interface_Tandoori_TRG.fig
@@ -23,7 +24,7 @@ function varargout = Interface_Tandoori_TRG(varargin)
 %
 % See also: GUIDE, GUIDATA, GUIHANDLES
 % Edit the above text to modify the response to help Interface_Tandoori_TRG
-% Last Modified by GUIDE v2.5 29-Sep-2017 14:25:32
+% Last Modified by GUIDE v2.5 22-Feb-2018 14:48:12
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -50,17 +51,6 @@ clc
 %% ############################################################################
 %% ####################### INITIALISATION DES VARIABLES #######################
 %% ############################################################################
-Fit696=0; Fit706=0; Fit727=0; Fit738=0; Fit750=0; Fit751=0; Fit763=0; Fit794=0; Fit800=0;
-Fit801=0; Fit811=0; Fit826=0; Fit840=0; Fit842=0; Fit852=0; Fit866=0; Fit810=0; Fit810Kr=0;
-Fit758=0; Fit760=0; Fit768=0; Fit769=0; Fit785=0; Fit819=0; Fit811Kr=0; Fit829=0; Fit850=0; Fit877=0; 
-Fit788=0; Fit823=0; Fit828=0; Fit881=0; Fit904=0; Fit820=0; Fit834=0; Fit640=0; 
-Fit585=0; Fit667=0; Fit714=0; Fit892=0; Fit895=0;   
-
-
-filetype=0; GraphExp=0; TeGraph1=0; TeGraph2=0; TeGrapheFinaux=0; graphePopDepop=0;
-P=0.01; Tg=300; 
-TeMin=0.1; TeMax=2; TeStep=0.005;
-NeMin=10; NeMax=16; NePts=200;
 
 % Choose default command line output for Interface_Tandoori_TRG
 handles.output = hObject;
@@ -320,7 +310,7 @@ end
                     Fit788 Fit820  Fit823 Fit828 Fit834 Fit881 Fit895 Fit904]; %Xe
          Overwrite=abs(1-Overwrite);
          
-         %% rejette le loop pour un gaz qu'on ne check pas!!
+         %% Le code va seulement bouclé sur les gaz utilisées. (ex:si on a que Ne Ar, on ne calcul pas Kr Xe)
          global gaz_i gaz_f
          gaz_f = 5 ;
          gaz_i = 2 ;
@@ -340,7 +330,6 @@ end
          % si j'ai pas de Kr et jai du Xe, on fait toute.
 
          %% Calcul d'erreur
-         
          ChoixErreur = get(handles.choixerreur,'value'); % 1= 1-sig 2= 1=1/sig 3= 1
          
          %% Graphes
@@ -353,7 +342,7 @@ end
          InfoGraphes=[GraphExp TeGraph1 TeGraph2 TeGrapheFinaux graphePopDepop];
          
          %% Te
-         %pour la STD
+         %Valeurs de Te à boucler
          TeMin=str2double(get(handles.TeMin,'String'));
          TeMax=str2double(get(handles.TeMax,'String'));
          TeStep=str2double(get(handles.TeStep,'String'));
@@ -361,7 +350,7 @@ end
          InfoTe=[TeMin TeMax TeStep];
                 
          %% Ne
-         %pour la STD normal sur un range décidé
+         %Valeurs de Ne à boucler
          NeMin=str2double(get(handles.NmMin,'String'));
          NeMax=str2double(get(handles.NmMax,'String'));
          NePts=str2double(get(handles.NmPts,'String')); 
@@ -388,14 +377,17 @@ end
          end
                   
         %% Paramètres d'operation
-         Tg=str2double(get(handles.Temperature,'String'));
-         l=str2double(get(handles.Absorption,'String')); 
-         sig_l=str2double(get(handles.sig_Absorption,'String'));       
+         Tg    = str2double(get(handles.Temperature,'String'));
+         l     = str2double(get(handles.Absorption,'String')); 
+         sig_l = str2double(get(handles.sig_Absorption,'String'));       
         %% Choix High Pressure Cross Section
             ChoixHautePression =  get(handles.ChoixHautePression,'Value'); 
-        %% Choix résonant et Autoabsorption
-            ChoixAutoabs =  get(handles.choixAutoabs,'Value');    
-        %% Commentaire à mettre en output
+        % Choix résonant et Autoabsorption
+            ChoixAutoabs =  get(handles.choixAutoabs,'Value');   
+        % Choix Transfert Excitation
+        global ChoixTransEx;
+            ChoixTransEx =  get(handles.checkTransEx,'Value');               
+        %% Commentaire à mettre en output de Te.out
         Commentaire = get(handles.Commentaire,'String')
         %% Choix des dimension du réacteur
         if get(handles.ChoixDimension,'value')==1 %
@@ -409,7 +401,8 @@ end
         end
          
         %% pressions partielles
-         flow = zeros(1,25); % les 25 gaz de donnelly
+        %calcul des pressions partielles du mélange gazeux.
+         flow = zeros(1,25); % 25 gaz possible (Donnelly à ca...)
          P_tot=str2double(get(handles.Pression,'String'));
          %Flow de TRG
          flow(1) = 0; % 0 % Helium
@@ -417,7 +410,7 @@ end
          flow(3) = 0.2*str2double(get(handles.TRGflow,'String'));% 20% Ar
          flow(4) = 0.2*str2double(get(handles.TRGflow,'String'));% 20% Kr
          flow(5) = 0.2*str2double(get(handles.TRGflow,'String'));% 20% Xe
-           
+
          %Ajout du Main flow
          if get(handles.MainGas,'value')==1 %Argon
          flow(3) = flow(3) + str2double(get(handles.Mainflow,'String'));
@@ -431,11 +424,15 @@ end
          if get(handles.MainGas,'value')==4 %N2
          flow(14) = str2double(get(handles.Mainflow,'String'));
          end
+         % TODO si il y a un autres gaz, le rajouter ici!!, et son
+         % quenching dans CalculTauxDeReaction_TRG.m
          
-         %% Flow de la trace de HMDSO 
+         %% Quenching additionelle (Le HMDSO de Garofano)
+         % on peut ajouter un quenching optionelle  en s^-1, il quench tout
+         % les 1s de la meme manière.
          global nu_hmdso;
          nu_hmdso =str2double(get(handles.FluxHMDSO,'String'));
-            %% Correction Pour la Needle Valve!!
+            %% Correction Pour la Needle Valve!!.
 %             needle_correction = sum(flow)/0.1833; %plus petit flow que ce qu'on envoit.
 %             flow = flow/needle_correction;
 %            clear needle_correction
@@ -462,7 +459,8 @@ end
           %% constante
           global c 
           c = 299792458; %vitesse de la lumière
-          
+          % TODO en ajouter d'autre. enfait il faudrait beaucoup plus de
+          % global. on a découvert ca trop tard :(
          
          %% Execution du code
          tic %timer
@@ -478,7 +476,7 @@ end
 % ================================================================
 % --- Executes on button press in Te_High.
 function Te_High_Callback(hObject, eventdata, handles) %PressButton
-    
+    %ces valeurs peuvent être modifier pour votre High, Tail, Low...
 %Ne  
 set(handles.Raie640,'Value',1);
 set(handles.Raie585,'Value',1);
@@ -833,3 +831,22 @@ function FluxHMDSO_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+
+% --- Executes on key press with focus on Graphe1 and none of its controls.
+function Graphe1_KeyPressFcn(hObject, eventdata, handles)
+% hObject    handle to Graphe1 (see GCBO)
+% eventdata  structure with the following fields (see MATLAB.UI.CONTROL.UICONTROL)
+%	Key: name of the key that was pressed, in lower case
+%	Character: character interpretation of the key(s) that was pressed
+%	Modifier: name(s) of the modifier key(s) (i.e., control, shift) pressed
+% handles    structure with handles and user data (see GUIDATA)
+
+
+% --- Executes on button press in checkTransEx.
+function checkTransEx_Callback(hObject, eventdata, handles)
+% hObject    handle to checkTransEx (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of checkTransEx

@@ -1,4 +1,4 @@
-function [Erreur,neOptimal,TeOptimal,MecanismeOptimal,MoyenneOptimal,ErreurOptimal,FitCorrige] = TeCalculErreur_TRG(type,ne,Te,mecanismes,Temp_I_exp,I_theo,FitCorrige,P,sig_I_theo,Temp_sig_I_exp)
+function [Erreur,neOptimal,TeOptimal,MoyenneOptimal,ErreurOptimal,FitCorrige] = TeCalculErreur_TRG(type,ne,Te,Temp_I_exp,I_theo,FitCorrige,P,sig_I_theo,Temp_sig_I_exp)
 
 %% ======= Initialisation des erreurs et incertitudes =======
 Erreur=zeros(length(ne),length(Te));
@@ -78,7 +78,6 @@ IncertitudeNm=zeros(length(ne),length(Te));
             Erreur(j,i)=(100*std(ratio,w))/Moyenne(j,i);
            
             
-%             Output(j,i,:) = Erreur; %prend les Ratios en output pis les save apres sous All_ratio.mat
 
         end
     end
@@ -97,12 +96,10 @@ IncertitudeNm=zeros(length(ne),length(Te));
     if length(PosNeMin) == 1               %S'il n'y a qu'un seul choix à l'optimum
         neOptimal(1)=ne(PosNeMin);
         TeOptimal(1)=Te(PosTeMin);
-        MecanismeOptimal=mecanismes(PosNeMin,PosTeMin);
         disp ('Une seule paire n1s2/Te trouvée') 
     else                                    %S'il y a plusieurs choix à l'optimum
         neOptimal(1)=ne(PosNeMin(1));
         TeOptimal(1)=Te(PosTeMin(1));
-        MecanismeOptimal=mecanismes(PosNeMin(1),PosTeMin(1));
     end
 
     %% Estimation de l'incertitude sur Te de deux méthode
