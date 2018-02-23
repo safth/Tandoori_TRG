@@ -1,8 +1,9 @@
 function [rateGround_1s,rateGround_2p,rate1s_2p,rateQuenching,rateNeutral,sig_rateGround_1s,sig_rateGround_2p,sig_rate1s_2p,sig_rateQuenching,sig_rateNeutral] = TeTauxDeReaction_TRG(gaz,Te,ChoixHautePression,ChoixAutoabs,exposant)
 
-%fonction qui sort les Taux de réactions pour Le pas de Te sélectionné,
-%pour le gaz utilisé, 
-%pour High ou Low Ar pressure
+% fonction qui sort les Taux de réactions pour le pas de Te sélectionné,
+% pour le gaz utilisé, 
+% pour High ou Low Ar pressure cross section
+% pour l'exposant utilisé
 % et qui applique les Fudges Factors
 
 %% ============== Préchargement de variables ==============

@@ -1,8 +1,7 @@
 function TeGraphes3_TRG(densite2p,Gains2p,Pertes2p,ContributionFond,energie1s,energie2p,densite1s,Gains1s,Pertes1s,ng)
 % %% =====================================================================================================
-% % ======== Cette fonction trace le graphiques 3D de SD en fonction de nm et Te ainsi que ceux de =======
-% % ==== divers quantité (Densité des niveaux 2p, % des contributions aux gains/pertes de population, ====
-% % ============ intensité et auto-absorption des raies) pour les paramètre Te et nm optimaux ============
+% % =================== Trace les contributions aux niveaux 2p et 1s de tous les gaz, ====================
+% % ============================ Gains et pertes, ainsi que les densités. ================================
 % % ======================================================================================================
 
 %% Préallocation d'espace
@@ -116,11 +115,11 @@ for gaz=gaz_i:gaz_f
 %% Graphe de la densité des niveaux 1s
       subplot(2,3,1)
       subplot('position',[0.04 0.55 0.29 0.4])
-      scatter(energie1s(gaz,:)',densite1s(gaz,1,1,:),'filled','d')
+      scatter(energie1s(gaz,:)',densite1s(gaz,1,1,:)/ng(gaz),'filled','d')
       %errorbar(energie1s(gaz,:)',densite1s(gaz,:)/ng(gaz),sig_densite1s(gaz,:)/ng(gaz),'o','CapSize',18)
       set(gca, 'yscale', 'log')
       xlabel('Énergies Niveaux 1s_5 à 1s_2','FontSize',11,'fontweight','bold');
-      title('Densite des niveaux 1s_x m^-3','fontweight','bold')
+      title('Densite des niveaux 1s_x par rapport au fondamental m^-3','fontweight','bold')
       if gaz==2
         xlim([16.5 17]);
       elseif gaz==3

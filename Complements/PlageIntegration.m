@@ -1,5 +1,5 @@
 %fonction appelé par IntensiteGaussMax_TRG qui prend les point autour d'une
-  %raie à fitter et qui lisse.
+%raie à fitter et qui lisse.
 %Prend E(q) en entrée
 function [IntTemp,LambdaTemp,moyenne] = PlageIntegration(E,Lambda,Int,plage,bkgd)
 %% Déclaration des vvecteurs de sorties

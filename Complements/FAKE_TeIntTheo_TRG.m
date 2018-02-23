@@ -1,3 +1,5 @@
+%% fonction pas utilisé. c'était juste un test pour avoir les meme résultats que donnelly
+
 function [densite1s,densite2p,Gains2p,Pertes2p,Emission,ContributionFond2p,Mecanismes,energie1s,energie2p,Gains1s,Pertes1s] = TeIntTheo_TRG(gaz,ne,Te,rateGround_1s,rateGround_2p,rate1s_2p,rateQuenching,rateNeutral,sig_rateGround_1s,sig_rateGround_2p,sig_rate1s_2p,sig_rateQuenching,sig_rateNeutral,Tg,longueur,AllIntegral,P,IndexOffset,max,flow)
 
 %% =====================================================================================================

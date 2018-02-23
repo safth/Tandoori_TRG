@@ -1,5 +1,5 @@
 function [PopFond,Pop1s,sig_Pop1s,PopAr]=TePopulation_TRG(i,ng,ne,n1s,rate1s_2p,rateGround_2p,gaz,nm_Ar)
-
+% mécanisme de populatino des 2p qui ne dépendent pas des 2p.
 
 %% Gain de population des niveaux 2p par impact électronique sur un neutre dans son niveau fondamental 
 

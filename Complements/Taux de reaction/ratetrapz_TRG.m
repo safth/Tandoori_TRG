@@ -1,5 +1,7 @@
 function [result]= ratetrapz(Te, file, exposant,HighPressure,Niveau)
 
+%% intèegre sur une fonction de distribution généralisé la section efficace choisis.
+
 %Definition des constantes
 e=1.602176462*10^(-19);
 me=9.10938188*10^(-31);

@@ -1,3 +1,5 @@
+%% test quelconque...?? ignorer svp
+
 
 exposant=1;
 Te=[0.1:0.1:10];

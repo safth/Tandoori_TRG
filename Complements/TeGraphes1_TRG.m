@@ -1,3 +1,5 @@
+%% Cette fonction n'est pas utilisé
+
 function TeGraphes1(ne,Te,I_theo,I_exp,FitCorrige,moyenne,Neopt)
 
 I_exp=I_exp(I_exp~=0);

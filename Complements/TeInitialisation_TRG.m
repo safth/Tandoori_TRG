@@ -1,5 +1,9 @@
 function [En2px_1s,En2px_2py,poids2p,poids1s,LambdaTheo2p,LambdaTheo1s,Aij2p,Aij1s,energie1s,energie2p,fji2p,fji1s,Br2p]=TeInitialisation_TRG(gaz)
 
+% fonction qui donne toues les constante d'intérets. Aij, lambda, energie
+% du niveaux, poids statistique du niveaux, Branching ratio et les fij, les
+% force d'oscillateur qui ne sont pas utilisé finalement (donnait l'élargissemnt résonnant qui est négligé)
+
 %Nomenclature des gaz à la Donnelly:
 % 2 = Ne ; 3 = Ar ;  4 = Kr ; 5 = Xe
 

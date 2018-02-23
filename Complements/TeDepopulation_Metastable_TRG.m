@@ -1,5 +1,6 @@
 function [Depop2p,DepopRadFond,PopAutoAbs,DepopMix,PopMix,DepopSuperelestique,DepopIonisation,DepopNeutre,PopUpDown,PopAr] = ...
     TeDepopulation_Metastable_TRG(i,gaz,ng,ne,Aij1s,Thetaij,rate1s_2p,rateQuenching,rateNeutral,Br2p,nm_Ar)
+%% fonction avec tous les mécanismes qui dépendent de la densitée des 1s (sauf pour le transfert d'excitation)
 
 %% 1) Depop impact électronique vers les 2p
 Depop2p = ne*[0 0 0 0 0; %RIEN
@@ -65,7 +66,8 @@ global nu_hmdso ;
 
 
 %% 7) Pop venant des 2P se désexcitant apres impact avec un autre 1s
-  %calcul fait par donnelly lorsqu'il résoud les 1s!!!
+  % calcul fait par donnelly lorsqu'il résoud les 1s!!!
+  % c'est parceque les sectinos efficaces de mixing ne sont pas cascading
   Cascade = zeros(5,5);
   %on fait une somme sur les 10 2p du niveau métastable m vers n
   for n=2:5             %boucle sur le niveux qui peuple le "n"

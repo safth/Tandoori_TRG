@@ -1,5 +1,7 @@
 function [DepopRad,PopAutoAbsRad,DepopColl2p2p,DepopColl1s,PopColl2p]=TeDepopulation_TRG(Aij,Thetaij,En2px_1s,En2px_2py,ng)
 
+%% fonction qui renvoie tous les mécanismes qui dépendent de la densité des 2p. Notez que seul DepopRad et popAutoAbs contribuent. 
+%% les autres sont seulement la parceque Antoine les avaient, ils ne contribuent absoluements pas à basse pression.
 %% Depopulation due à une transition radiative 
 %Aij change dans pour chaque gaz dans Teinitialisation
 DepopRad=[(Aij(10,5)+Aij(10,4)+Aij(10,3)+Aij(10,2)),0,0,0,0,0,0,0,0,0; %2p10

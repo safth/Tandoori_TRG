@@ -2,37 +2,17 @@ function [densite1s,sig_densite1s,densite2p,sig_densite2p,Gains2p,Pertes2p,Emiss
 
 %% =====================================================================================================
 %% ================ Cette fonction calcule les intensité théorique de raies pour tous ==================
-%% =============== les Te à une densité des niveaux 1s et une température de gaz donnés ================
+%% =============== les Te à pour une densité électronique donnée et pour un gaz donnée  ================
 %% =====================================================================================================
 
 %% ====== INFOS SUR LA FONCTION ======
 %La variable gaz indique pour quel gaz on cherche les intensités de raie
 %La variable ne est la densité électronique
-%La variable Te contient toutes les températures qui doivent être analysées au cours de cette fonction
-%Les variables rateGround_2p et rate1s_2p sont les taux de réaction des
-    %collisions e-fondamental et e-1s
+%Le vecteur Te contient toutes les températures qui doivent être analysées au cours de cette fonction
 %La variable Tg contient la température du gaz    
-%La variable longueur est la longueur du parcours optique dans le plasma
-    %pour le calcul d'auto-absorption
-%La variable AllIntegral contient l'information sur le résultat de
-    %l'intégrale du profil Voigt pour différents beta possibles
-%La variable P contient la pression d'opération
-%La variable IndexOffset sert à sélectionner le bon taux de réaction
-    %lorsque le Te optimal a été trouvé
+%La variable longueur est la longueur du parcours optique dans le plasma pour le calcul d'auto-absorption
+%Le vecteur P contient les pressions partielles
 %------------------------------------------------------------------------------------
-%% ===== nomenclature =====
-%les vecteur ont comme première entrée le numéro du gaz utilisé
-% ex rate1s_2p(4,3,10.i) krypton, 1s3->2P10 pour Te(i)
-% 1 = He (inexistant)
-% 2 = Néon
-% 3 = Argon
-% 4 = Krypton
-% 5 = Xénon
-% 13 = O2
-%% ====== DÉBUT DE LA FONCTION =======
-
-%% Récupération des données utiles
-[En2px_1s,En2px_2py,poids2p,poids1s,LambdaTheo2p,LambdaTheo1s,Aij2p,Aij1s,energie1s,energie2p,fji2p,fji1s,Br2p]=TeInitialisation_TRG(gaz);
     %POUR INFO:
     %rateGround_2p = taux de réaction pour l'excitation des niveaux 2p par impact électronique sur le fondamental
     %rateGround_1s = Taux de réaction pour l'excitation du fondamental vers les 1s par impact électronique
@@ -44,11 +24,24 @@ function [densite1s,sig_densite1s,densite2p,sig_densite2p,Gains2p,Pertes2p,Emiss
     %poids2p = poids statistique des niveaux 2p
     %poids1s = poids statistique des niveaux 1s
     %LambdaTheo = longueurs d'onde des transition radiatives 2p-1s
-    %Aij = Aij, les coefficients de desexcitation radiative spontanée
+    %Aij = les coefficients de desexcitation radiative spontanée
     %energie1s = énergie des niveaux 1s
+%% ===== nomenclature =====
+%les vecteur ont comme première entrée le numéro du gaz utilisé
+% ex rate1s_2p(4,3,10,i) krypton, 1s3->2P10 pour Te(i)
+% 1 = He (inexistant)
+% 2 = Néon
+% 3 = Argon
+% 4 = Krypton
+% 5 = Xénon
+% 13 = O2 
+%% ====== DÉBUT DE LA FONCTION =======
+
+% Récupération des données utiles / CONSTANTE
+[En2px_1s,En2px_2py,poids2p,poids1s,LambdaTheo2p,LambdaTheo1s,Aij2p,Aij1s,energie1s,energie2p,fji2p,fji1s,Br2p]=TeInitialisation_TRG(gaz);
     
     %% Préallocation d'espace
-    %selon le nombre de raie observé par gaz
+    %selon le nombre de raie observé par gaz, les vecteurs n'ont pas la meme dimension
     if gaz==2
     index=2;
     end
@@ -86,7 +79,6 @@ function [densite1s,sig_densite1s,densite2p,sig_densite2p,Gains2p,Pertes2p,Emiss
     PerteNeutre_1s     =zeros(length(Te),5);
     GainsRes_1s        =zeros(length(Te),5);
     GainsMetas_1s      =zeros(length(Te),5);
-    %tout ce qui est incertitudes
     sig_gain           =zeros(length(Te),5);
     sig_perte          =zeros(length(Te),5);
     gain               =zeros(length(Te),5);
@@ -96,8 +88,6 @@ function [densite1s,sig_densite1s,densite2p,sig_densite2p,Gains2p,Pertes2p,Emiss
     gain_2P            =zeros(length(Te),10);
     sig_densite2p      =zeros(length(Te),10);
 
-    
-    
     I_theo          =zeros(length(Te),index);
     sig_I_theo      =zeros(length(Te),index);
     Theta           =zeros(length(Te),index);
@@ -106,7 +96,7 @@ function [densite1s,sig_densite1s,densite2p,sig_densite2p,Gains2p,Pertes2p,Emiss
     Resonant        =zeros(length(Te),index);
     
     Thetaij         =zeros(10,5);
-    sig_Thetaij         =zeros(10,5);
+    sig_Thetaij     =zeros(10,5);
     Thetaij_1s      =zeros(1,5);
     Dopp            =zeros(10,5);
     VDWaals         =zeros(10,5);
@@ -115,14 +105,12 @@ function [densite1s,sig_densite1s,densite2p,sig_densite2p,Gains2p,Pertes2p,Emiss
     n1sX            =zeros(1,5);
     
     %% Correction des taux collisionnels en température
-    En2px_1s=En2px_1s*(sqrt(Tg/300));
+    En2px_1s=En2px_1s*(sqrt(Tg/300)); %on pourrait faire ca pour le qucnhing aussi!! il depend de sqrt(Tg)
     En2px_2py=En2px_2py*(sqrt(Tg/300));    
 
 %% Calcul de la densité de neutres à l'état fondamental avec p=n*k*Tg [m-3]
    %ng(gaz) car P est un vecteur avec les pressions partielles des gas utilisés
-    ng=(P)./(1.38064852*10^(-23)*Tg);
-    
-
+    ng=(P)./(1.38064852*10^(-23)*Tg);   
    
 %% ================== Boucle sur la température électronique: COMPTEUR: t =================
 for t=1:length(Te)
@@ -138,31 +126,25 @@ for t=1:length(Te)
             if ChoixAutoabs==1
                [Thetaij_1s(i)]=TeEscapeFactorDOPE_TRG(gaz,LambdaTheo1s(i),poids1s(i),1,Aij1s(i),ng(gaz),longueur,Tg,0,sig_longueur);        
             else
-               Thetaij_1s(i) = 1; % on met l'autoabsorption à 0 pour tester Donnelly (autoabs = 1-thetaij)
+               Thetaij_1s(i) = 1; % on met l'autoabsorption à 0 si on a coché de l'ignorer (autoabs = 1-thetaij)
             end
         end
     end 
 %% Mécanismes indépendants de la densité des 1s
 [PopFond]= TePopulation_Metastable_TRG(ng(gaz),ne,rateGround_1s(:,t));
-
     
 %% Mécanismes dépendant de la densité des 1s    
 [Depop2p,DepopRadFond,PopAutoAbs,DepopMix,PopMix,DepopSuperelestique,DepopIonisation,DepopNeutre,PopUpDown,PopAr_1s] = TeDepopulation_Metastable_TRG(t,gaz,ng,ne,Aij1s,Thetaij_1s,rate1s_2p,rateQuenching,rateNeutral,Br2p,nm_Ar);
 
+%% Obtention de la densité des niveaux pour avoir l'etat stationnaire depopulation=population
+% les gains dans "depop" sont négatifs. (pop=depop). Certains gains sont dans Depop puisqu'ils dépendent de la denité des 1s. on les mets alors négatifs
 depopulation1s=Depop2p+DepopRadFond-PopAutoAbs+DepopMix-PopMix+DepopSuperelestique+DepopIonisation + DepopNeutre - PopUpDown;
 population1s=PopFond+PopAr_1s;
-% DepopNeutre;
-%% Obtention de la densité des niveaux pour avoir l'etat stationnaire depopulation=population
 
 n1sX=linsolve(depopulation1s,population1s);
 %n1sX(2)=1e1; %negliger les résonnant
 %n1sX(4)=1e1; %negliger les résonnant
-
-
 densite1s(t,:)=n1sX;
-
-
-
 densite1s(isnan(densite1s)) = 0 ; %enleve le NaN en 1s1
 
 
@@ -193,21 +175,23 @@ densite1s(isnan(densite1s)) = 0 ; %enleve le NaN en 1s1
 %  =======================sur les 1s ========================= 
 %  ===========================================================  
 %  =========================================================== 
-%calcul des incertide sur les taux de réactions
+%calcul des incertide sur les taux de réactions. On résoud par méthode
+%itérative puisque ce n'est plus linéaire.
 [sig_PopFond]= TePopulation_Metastable_TRG(ng(gaz),ne,sig_rateGround_1s(:,t));
 [sig_Depop2p,sig_DepopRadFond,sig_PopAutoAbs,sig_DepopMix,sig_PopMix,sig_DepopSuperelestique,sig_DepopIonisation,sig_DepopNeutre,sig_PopUpDown,sig_PopAr_1s] = TeDepopulation_Metastable_TRG(t,gaz,ng,ne,Aij1s,Thetaij_1s,sig_rate1s_2p,sig_rateQuenching,sig_rateNeutral,Br2p,sig_nm_Ar);
 
+%initialisation de variables
 iter=0; % boucle qui compte le nombre d'itération
 residu=10e21; %start le résidu à quelquechose de très gros.
-% boucle tant que la différence entre 2 résultats consécutif est >1000 fois
-% celui-ci
 gain(t,:)=0;
 sig_gain(t,:)=0;
 perte(t,:)=0;
 sig_perte(t,:)=0; 
-while abs(residu) > sig_densite1s(t,5)/1000 %boucle car 1s3 dépend de 1s5 et vice versa
+
+% boucle tant que le résidu est n'est pas de 1/1000
+while abs(residu) > sig_densite1s(t,5)/1000 %boucle car 1s3 dépend de 1s5 non linéairement et vice versa
 for j=2:5 % boucle sur les 1s à résoudre
-    for i=2:5 % comme sur les 1s pour les n1sX(j) à résoudre
+    for i=2:5 % boucle sur les autres 1s
         if j~=i 
           gain(t,j)     = gain(t,j)     + densite1s(t,i)*PopMix(j,i) + densite1s(t,i)*PopUpDown(j,i);      
           sig_gain(t,j) = sig_gain(t,j) + densite1s(t,i).^2*(sum(sig_PopMix(j,i) + sig_PopUpDown(j,i))).^2 + sig_densite1s(i).^2*(sum(PopMix(j,i) + PopUpDown(j,i))).^2; % sqrt à la fin
@@ -232,10 +216,10 @@ residu(isnan(residu)) = 0; %enleve le NaN en 1s1
 
 sig_densite1s(t,2)=sig_densite1s(t,3)*densite1s(t,2)/densite1s(t,3);
 sig_densite1s(t,4)=sig_densite1s(t,5)*densite1s(t,4)/densite1s(t,5);
-100*sig_densite1s(t,:)./densite1s(t,:);
+%100*sig_densite1s(t,:)./densite1s(t,:);
 
  %% affichage des incertitudes sur les 1s
-%  if IndexOffset>2
+% 
 %     figure1=figure;
 %     name = {'erreur He' 'erreur Ne' 'erreur Ar' 'erreur Kr' 'erreur Xe'};
 %     set(figure1,'name',name{gaz},'numbertitle','off','Position',[200 600 1000 600])
@@ -248,10 +232,6 @@ sig_densite1s(t,4)=sig_densite1s(t,5)*densite1s(t,4)/densite1s(t,5);
 %     title('Incertitude sur les 1s')
 %     xlabel('Niveau 1s_x','FontSize',11,'fontweight','bold');
 %      
-%  end
-
-
-%iter %montre le nombre d'itération faites
 %% ###########################################################  
 %  ###########################################################
 %  ############# Ensuite on peut résoudre les 2p #############
@@ -264,7 +244,7 @@ sig_densite1s(t,4)=sig_densite1s(t,5)*densite1s(t,4)/densite1s(t,5);
                 if ChoixAutoabs==1
                    [Thetaij(i,j),Dopp(i,j),sig_Thetaij(i,j)]=TeEscapeFactorDOPE_TRG(gaz,LambdaTheo2p(i,j),poids2p(i),poids1s(j),Aij2p(i,j),n1sX(j),longueur,Tg,sig_densite1s(t,j),sig_longueur);  
                 else
-                   Thetaij(i,j) = 1; %on néglige l'autoabsorption
+                   Thetaij(i,j) = 1; %si on néglige l'autoabsorption
                 end
             end
         end      
@@ -274,7 +254,7 @@ sig_densite1s(t,4)=sig_densite1s(t,5)*densite1s(t,4)/densite1s(t,5);
     
 
 %% Calcul des processus de population/depopulation dépendant de la densité des niveaux 2p (inclut: émission et absorption radiative, processus collisionnel entre les 2p et vers les 1s)
-    [DepopRad2p,PopRad2p,DepopColl2p,DepopColl1s,PopColl2p]=TeDepopulation_TRG(Aij2p,Thetaij,En2px_1s,En2px_2py,ng(gaz));   %Considère desexc. rad. + transfert coll vers le haut et le bas
+    [DepopRad2p,PopRad2p,DepopColl2p,DepopColl1s,PopColl2p]=TeDepopulation_TRG(Aij2p,Thetaij,En2px_1s,En2px_2py,ng(gaz)); 
   
 %% Calcul des processus de population des niveaux 2p via impact électronique sur le fondamental et les niveaux 1s
     [PopFond2p,PopNm2p,Pop1s,PopAr]=TePopulation_TRG(t,ng,ne,n1sX,rate1s_2p,rateGround_2p,gaz,nm_Ar);
@@ -291,8 +271,8 @@ sig_densite1s(t,4)=sig_densite1s(t,5)*densite1s(t,4)/densite1s(t,5);
     PopAr=flipud(PopAr);
     
     %% Obtention de la densité des niveaux pour avoir l'etat stationnaire depopulation=population
-    %depopulation=DepopRad2p-PopRad2p+DepopColl2p+DepopColl1s-PopColl2p;
-    depopulation=DepopRad2p-PopRad2p; % on prend juste les trans Radiative
+    depopulation=DepopRad2p-PopRad2p+DepopColl2p+DepopColl1s-PopColl2p;
+    %depopulation=DepopRad2p-PopRad2p; % on prend juste les trans Radiative
     population=PopNm2p+PopFond2p+PopAr;
     
     densite2p(t,:)=linsolve(depopulation,population);              %depopulation*density=population
@@ -312,46 +292,35 @@ sig_densite1s(t,4)=sig_densite1s(t,5)*densite1s(t,4)/densite1s(t,5);
     %% En particulier, on regarde pour quels paramètres l'excitation du fondamental (ou à l'inverse via les 1s) domine
     ContributionFond2p(t,:)=100*PopFond2p./(PopFond2p+PopNm2p);
     
-    ground=0; met=0;    %Compteurs
-    for m=1:10 %Pour tous les niveaux
-       if ContributionFond2p(t,m)>90  %On regarde s'il y en a peuplés à plus de 90% par le fondamental
-           ground=ground+1;
-       end
-       if ContributionFond2p(t,m)<10  %Et s'il y en a pleuplés à moins de 10% par le fondamental
-           met=met+1;
-       end
-    end
-    
-
-    
-
     %% =========================================================== 
-%  =========================================================== 
-%  ================ Calcul de l'incertitude ==================
-%  =======================sur les 2P ========================= 
-%  ===========================================================  
-%  =========================================================== 
+    %  =========================================================== 
+    %  ================ Calcul de l'incertitude ==================
+    %  =======================sur les 2P ========================= 
+    %  ===========================================================  
+    %  =========================================================== 
     [sig_PopFond2p,sig_PopNm2p,sig_Pop1,sig_PopAr]=TePopulation_TRG(t,ng,ne,n1sX,sig_rate1s_2p,sig_rateGround_2p,gaz,sig_nm_Ar);
     [sig_DepopRad2p,sig_PopRad2p,sig_DepopColl2p,sig_DepopColl1s,sig_PopColl2p]=TeDepopulation_TRG(Aij2p,sig_Thetaij,En2px_1s,En2px_2py,ng(gaz));   %Considère desexc. rad. + transfert coll vers le haut et le bas
 
-    %Aucune incertitude sur le Depop
+    %Aucune incertitude sur le Depop. Enfait, une petite sur les Aij du Xe
+    %qui pourrait etre ajouté. Je ne crois pas que ca change vram
+    %quelquechose surtout quelle est considéré sur l'intensité des raies
 for iter=1:3
-sig_gain_2P_a = zeros(10,1);
-sig_gain_2P(t,:) = 0;
-gain_2P(t,:) = 0;
-for j=1:10 % boucle sur les 2P à résoudre
-    for i=2:5 % Boucle sur les 1s
-      sig_gain_2P_a(j) = sig_gain_2P_a(j) + (sig_densite1s(t,i)*Pop1s(j,i))^2;
-    end
-    sig_gain_2P(t,11-j) = sqrt(sig_gain_2P_a(j) + sig_PopFond2p(j)^2 + sig_PopNm2p(j)^2 + sig_PopAr(j)^2 + (densite2p(t,j)*sig_PopRad2p(j))^2 + (sig_densite2p(t,j)*PopRad2p(j))^2);%11-j car gain(1)=2p10 et gain(10)=2p1
-    gain_2P(t,j) = PopFond2p(j)+ PopNm2p(j) + densite2p(t,j)*PopRad2p(j)+PopAr(j);
-   
-end    
-clear i j
-%Valeur final de lincertitude sur les densité de 2P
-%reste =  sig_densite2p(t,:) - densite2p(t,:).*(sig_gain_2P(t,:)./gain_2P(t,:))
-sig_densite2p(t,:) = densite2p(t,:).*(sig_gain_2P(t,:)./gain_2P(t,:));
-sig_densite2p(isnan(sig_densite2p)) = 0; %enleve les NaN
+    sig_gain_2P_a = zeros(10,1);
+    sig_gain_2P(t,:) = 0;
+    gain_2P(t,:) = 0;
+        for j=1:10 % boucle sur les 2P à résoudre
+            for i=2:5 % Boucle sur les 1s
+              sig_gain_2P_a(j) = sig_gain_2P_a(j) + (sig_densite1s(t,i)*Pop1s(j,i))^2;
+            end
+            sig_gain_2P(t,11-j) = sqrt(sig_gain_2P_a(j) + sig_PopFond2p(j)^2 + sig_PopNm2p(j)^2 + sig_PopAr(j)^2 + (densite2p(t,j)*sig_PopRad2p(j))^2 + (sig_densite2p(t,j)*PopRad2p(j))^2);%11-j car gain(1)=2p10 et gain(10)=2p1
+            gain_2P(t,j) = PopFond2p(j)+ PopNm2p(j) + densite2p(t,j)*PopRad2p(j)+PopAr(j);
+
+        end    
+    clear i j
+    %Valeur final de lincertitude sur les densité de 2P
+    %reste =  sig_densite2p(t,:) - densite2p(t,:).*(sig_gain_2P(t,:)./gain_2P(t,:))
+    sig_densite2p(t,:) = densite2p(t,:).*(sig_gain_2P(t,:)./gain_2P(t,:));
+    sig_densite2p(isnan(sig_densite2p)) = 0; %enleve les NaN
 end
 
 %% affichage des différentes contributions à l'erreur
@@ -374,28 +343,23 @@ end
 % 
 %  end
 
-    %% ============== Intensité des raies tenant compte de l'auto-absorption ==============
+    %% ==================================================
+    %% ============== Intensité des raies  ==============
+    %% ==================================================
         if gaz==2 % Raie de néon
             I585=densite2p(t,1)*Aij2p(1,2)*Thetaij(1,2);             %2p1-1s2
             I640=densite2p(t,9)*Aij2p(9,5)*Thetaij(9,5);             %2p9-1s5
 
             I_theo(t,:)=[I585 I640];
+            
             %calcul d'erreur
             I585 =sqrt((sig_densite2p(t,1)*Aij2p(1,2)*Thetaij(1,2))^2 + (densite2p(t,1)*Aij2p(1,2)*sig_Thetaij(1,2))^2);             %2p1-1s2
             I640 =sqrt((sig_densite2p(t,9)*Aij2p(9,5)*Thetaij(9,5))^2 + (densite2p(t,9)*Aij2p(9,5)*sig_Thetaij(9,5))^2);             %2p9-1s5
             
             sig_I_theo(t,:) = [I585 I640];
-            
-            
-
+                  
             %% Ainsi qu'à quel point elles sont effectivement sorties du plasma (sans être auto-absorbées)
             Theta(t,:)=[Thetaij(1,2) Thetaij(9,5)] ;
-
-            %% Et leur diverses composantes à l'élargissement
-            %à refaire!!!! pas fini avec les nouvelles raiees de TRG
-            %Doppler(t)=Dopp(1,2);
-            %VanDerWaals(t)=VDWaals(1,2);
-            %Resonant(t)=Res(1,2);    
 
             clear  I585 I640
         elseif gaz ==3 % Raies d'argon
@@ -442,18 +406,12 @@ end
              I852=sqrt( (sig_densite2p(t,4)*Aij2p(4,2)*Thetaij(4,2))^2 + (densite2p(t,4)*Aij2p(4,2)*sig_Thetaij(4,2))^2);             %2p4-1s2
              I866=sqrt( (sig_densite2p(t,7)*Aij2p(7,3)*Thetaij(7,3))^2 + (densite2p(t,7)*Aij2p(7,3)*sig_Thetaij(7,3))^2);             %2p7-1s3
 
-             sig_I_theo(t,:)=[I667 I696 I706 I714 I727 I738 I750 I751 I763 I794 I800 I801 I810 I811 I826 I840 I842 I852 I866]; %pump de Donnelly1.1;
+             sig_I_theo(t,:)=[I667 I696 I706 I714 I727 I738 I750 I751 I763 I794 I800 I801 I810 I811 I826 I840 I842 I852 I866]; 
 
             %% Ainsi qu'à quel point elles sont effectivement sorties du plasma (sans être auto-absorbées)
             Theta(t,:)=[Thetaij(1,4) Thetaij(2,5) Thetaij(3,5) Thetaij(4,5) Thetaij(2,4) Thetaij(3,4) Thetaij(1,2)...
                         Thetaij(5,4) Thetaij(6,5) Thetaij(4,3) Thetaij(6,4) Thetaij(8,5) Thetaij(7,4) Thetaij(9,5)...
                         Thetaij(2,2) Thetaij(3,2) Thetaij(8,4) Thetaij(4,2) Thetaij(7,3)];
-
-            %% Et leur diverses composantes à l'élargissement
-            %à refaire!!!! pas fini avec les nouvelles raiees de TRG
-            %Doppler(t,:)=[Dopp(1,4) Dopp(2,5) Dopp(3,5) Dopp(4,5) Dopp(2,4) Dopp(3,4) Dopp(1,2) Dopp(5,4) Dopp(6,5) Dopp(4,3) Dopp(6,4) Dopp(8,5) Dopp(7,4) Dopp(9,5) Dopp(2,2) Dopp(3,2) Dopp(8,4) Dopp(4,2) Dopp(7,3)];
-            %VanDerWaals(t,:)=[VDWaals(1,4) VDWaals(2,5) VDWaals(3,5) VDWaals(4,5) VDWaals(2,4) VDWaals(3,4) VDWaals(1,2) VDWaals(5,4) VDWaals(6,5) VDWaals(4,3) VDWaals(6,4) VDWaals(8,5) VDWaals(7,4) VDWaals(9,5) VDWaals(2,2) VDWaals(3,2) VDWaals(8,4) VDWaals(4,2) VDWaals(7,3)];
-            %Resonant(t,:)=[Res(1,2) Res(2,5) Res(2,4) Res(2,2) Res(3,5) Res(3,4) Res(3,2) Res(4,3) Res(4,2) Res(5,4) Res(6,5) Res(6,4) Res(7,4) Res(7,3) Res(8,5) Res(8,4) Res(9,5)];    
 
             clear I667 I696 I706 I714 I727 I738 I750 I751 I763 I794 I800 I801 I810 I811 I826 I840 I842 I852 I866
 
@@ -471,10 +429,9 @@ end
              I877=densite2p(t,8)*Aij2p(8,4)*Thetaij(8,4);             %2p8-1s4
              I892=densite2p(t,10)*Aij2p(10,5)*Thetaij(10,5);          %2p8-1s4
 
-             I_theo(t,:)=[I758 I760 I768 I769 I785 I810 I811 I819 I829 I850 I877 I892];%pump de Donnelly 1.48
+             I_theo(t,:)=[I758 I760 I768 I769 I785 I810 I811 I819 I829 I850 I877 I892];
              
-             %calcul errur
-             
+             %calcul erreur   
              I758=sqrt( (sig_densite2p(t,5)*Aij2p(5,4)*Thetaij(5,4))^2 + (densite2p(t,5)*Aij2p(5,4)*sig_Thetaij(5,4))^2);             %2p5-1s4
              I760=sqrt( (sig_densite2p(t,6)*Aij2p(6,5)*Thetaij(6,5))^2 + (densite2p(t,6)*Aij2p(6,5)*sig_Thetaij(6,5))^2);             %2p6-1s5
              I768=sqrt( (sig_densite2p(t,1)*Aij2p(1,2)*Thetaij(1,2))^2 + (densite2p(t,1)*Aij2p(1,2)*sig_Thetaij(1,2))^2);             %2p1-1s2
@@ -493,27 +450,23 @@ end
             %% Ainsi qu'à quel point elles sont effectivement sorties du plasma (sans être auto-absorbées)
             Theta(t,:)=[Thetaij(5,4) Thetaij(6,5) Thetaij(1,2) Thetaij(7,5) Thetaij(3,3) Thetaij(8,5)...
                         Thetaij(9,5) Thetaij(6,4) Thetaij(7,4) Thetaij(4,2) Thetaij(8,4) Thetaij(10,5)];
-            %% Et leur diverses composantes à l'élargissement
-            %à refaire!!!! pas fini avec les nouvelles raiees de TRG
-            %Doppler(t,:)=[Dopp(5,4) Dopp(6,5) Dopp(1,2) Dopp(7,5) Dopp(3,3) Dopp(8,5) Dopp(9,5) Dopp(6,4) Dopp(7,4) Dopp(4,2) Dopp(8,4)];
-            %VanDerWaals(t,:)=[VDWaals(5,4) VDWaals(6,5) VDWaals(1,2) VDWaals(7,5) VDWaals(3,3) VDWaals(8,5) VDWaals(9,5) VDWaals(6,4) VDWaals(7,4) VDWaals(4,2) VDWaals(8,4)];
-            %Resonant(t,:)=[Res(1,4) Res(2,5) Res(3,5) Res(4,5) Res(2,4) Res(3,4) Res(1,2) Res(5,4) Res(6,5) Res(4,3) Res(6,4) Res(8,5) Res(7,4) Res(9,5) Res(2,2) Res(3,2) Res(8,4) Res(4,2) Res(7,3)];  
 
             clear I758 I760 I768 I769 I785 I810 I811 I819 I829 I850 I877 I892
         elseif gaz==5
               
-                 I788=densite2p(t,1)*Aij2p(1,2)*Thetaij(1,2);             %2p1-1s2 %corrigé par simon
-                 I820=densite2p(t,4)*Aij2p(4,3)*Thetaij(4,3);             %2p4-1s3 %corrigé par simon
-                 I823=densite2p(t,6)*Aij2p(6,5)*Thetaij(6,5);             %2p6-1s5 %corrigé par simon
-                 I828=densite2p(t,5)*Aij2p(5,4)*Thetaij(5,4);             %2p5-1s4 %corrigé par simon
-                 I834=densite2p(t,3)*Aij2p(3,2)*Thetaij(3,2);             %2p3-1s2 %corrigé par simon
-                 I881=densite2p(t,8)*Aij2p(8,5)*Thetaij(8,5);             %2p5-1s4 %corrigé par simon
-                 I895=densite2p(t,6)*Aij2p(6,4)*Thetaij(6,4);             %2p6-1s5 %corrigé par simon
-                 I904=densite2p(t,9)*Aij2p(9,5)*Thetaij(9,5);             %2p6-1s5 %corrigé par simon
+                 I788=densite2p(t,1)*Aij2p(1,2)*Thetaij(1,2);             %2p1-1s2 
+                 I820=densite2p(t,4)*Aij2p(4,3)*Thetaij(4,3);             %2p4-1s3 
+                 I823=densite2p(t,6)*Aij2p(6,5)*Thetaij(6,5);             %2p6-1s5
+                 I828=densite2p(t,5)*Aij2p(5,4)*Thetaij(5,4);             %2p5-1s4 
+                 I834=densite2p(t,3)*Aij2p(3,2)*Thetaij(3,2);             %2p3-1s2 
+                 I881=densite2p(t,8)*Aij2p(8,5)*Thetaij(8,5);             %2p5-1s4 
+                 I895=densite2p(t,6)*Aij2p(6,4)*Thetaij(6,4);             %2p6-1s5 
+                 I904=densite2p(t,9)*Aij2p(9,5)*Thetaij(9,5);             %2p6-1s5 
                 
                   I_theo(t,:)=[I788 I820 I823 I828 I834 I881 I895 I904]; 
                   
-                  %erreur
+                  %erreur avec une erreur sur les Aij puisque la seul
+                  %source avec des Aij pour le Xenon en donne 2 différents
                  I788=sqrt((sig_densite2p(t,1)*Aij2p(1,2)*Thetaij(1,2))^2 + (densite2p(t,1)*Aij2p(1,2)*Thetaij(1,2)*0.18)^2 + (densite2p(t,1)*Aij2p(1,2)*sig_Thetaij(1,2))^2); % 18% sur Aij     
                  I820=sqrt((sig_densite2p(t,4)*Aij2p(4,3)*Thetaij(4,3))^2 + (densite2p(t,4)*Aij2p(4,3)*Thetaij(4,3)*0.32)^2 + (densite2p(t,4)*Aij2p(4,3)*sig_Thetaij(4,3))^2); % 32% sur Aij                
                  I823=sqrt((sig_densite2p(t,6)*Aij2p(6,5)*Thetaij(6,5))^2 + (densite2p(t,6)*Aij2p(6,5)*Thetaij(6,5)*0.10)^2 + (densite2p(t,6)*Aij2p(6,5)*sig_Thetaij(6,5))^2); % 10% sur Aij               
@@ -529,28 +482,9 @@ end
             %% Ainsi qu'à quel point elles sont effectivement sorties du plasma (sans être auto-absorbées)
             Theta(t,:)=[Thetaij(1,2) Thetaij(4,3) Thetaij(6,5) Thetaij(5,4) Thetaij(3,2) Thetaij(9,5) Thetaij(6,4) Thetaij(8,5)];
 
-            %% Et leur diverses composantes à l'élargissement
-            %à refaire!!!! pas fini avec les nouvelles raiees de TRG
-            %Doppler(t,:)=[Dopp(2,5) Dopp(3,5) Dopp(2,4) Dopp(3,4) Dopp(1,2) Dopp(5,4) Dopp(6,5)];
-            %VanDerWaals(t,:)=[VDWaals(2,5) VDWaals(3,5) VDWaals(2,4) VDWaals(3,4) VDWaals(1,2) VDWaals(5,4) VDWaals(6,5)];
-            %Resonant(t,:)=[Res(2,5) Res(3,5) Res(2,4) Res(3,4) Res(1,2) Res(5,4) Res(6,5)];    
             clear I788 I820 I823 I828 I834 I881 I904  
         end
-    %%écriture des intensité des UV pour Pierre
-%     if max==1
-%       if gaz==3
-%           'ecriture des densité de metastable TeIntTheo ligne 468'
-%          % x(:) = densite1s(t,:).*Aij1s(:)'.*Thetaij_1s(:)';
-%          x(:) = densite1s(t,:)
-%           fopen( 'Densite_metastables','a')
-%               fileID = fopen( 'Densite_metastables.txt','at'); 
-%               formatSpec = '%.4e\t %e\t %.4e\t %e\r\n';
-%               fprintf(fileID,formatSpec,x(2:5));
-%               fclose(fileID);
-%           clear Ratio
-%       end
-%       end
-    
+
 end %Fin Boucle Te
 clear Thetaij depopulation Dopp VDWaals Res
 

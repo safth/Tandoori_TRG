@@ -1,3 +1,5 @@
+%% Cette fonction n'est pas utilisé, elle vient du code d'argon pression atmosphérique
+
 function [Yij,Doppler,VdW,Resonant] = TeEscapeFactor_TRG(gaz,lambda, gi,li,EnergieI, gj,lj,EnergieJ, Aij, nj,rho,Tg,ng,fji,AllIntegral)
 %% =============================================================================================
 %% ========= Cette fonction calcule le facteur d'échappement à appliquer pour corriger =========

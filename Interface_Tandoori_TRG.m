@@ -1,4 +1,4 @@
-
+% Cette fonction n'est pas utilisé, c'est juste un test
 
 function varargout = Interface_Tandoori_TRG(varargin)
 

@@ -1,7 +1,15 @@
+%% Cette fonction n'est pas utilisé, elle vient du code d'argon pression atmosphérique
+
+%% sert à rien pour le modèle TRG. seulement pour l'Argon aussi...
+% calcul les En2px_2py dans TeDepoppulation_TRG qui donnent tous 0 à basse
+% pression
+
 %% ==============================================================================
 %% =======Cette fonction sert à mettre en matrice les taux de transfert =========
 %% ====================d'énergie entre niveaux 2px et 2py =======================
 %% ==============================================================================
+
+
 
 En2px_2py=zeros(10);                %En2px_2py(2,3) = 2p2 ->2p3
 

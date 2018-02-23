@@ -1,3 +1,5 @@
+%% fonction pas utilisé, permet d'avoir le pourcentage du fondamental pour tous les nievaux de tous les gaz!!
+
 function  TeGraphesTEMP(gaz,Ne,Te,ContributionFond)
 % if gaz==2
 %     figure('name','Neon')

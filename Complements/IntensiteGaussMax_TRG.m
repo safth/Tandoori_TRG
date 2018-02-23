@@ -3,7 +3,7 @@ function [I_exp,sig_I_exp,Fit] = IntensiteGaussMax_TRG(E,Lambda,Int,GraphAll,Dou
 %% ======= Cette fonction calcule le FWHM à partir de la raie à 763nm et identifie ========
 %% ========== l'intensité des raies à analyser en leur fittant une/des gaussienne =========
 %% ========================================================================================
-GraphExp=0; %Variable pour voir les Fits sur chaques raies
+GraphExp=0; %Variable pour voir les Fits sur chaques raies, a mettre manuellement à 1 si ont veut voir chaque gaussienne ajusté
 %% ====== INFOS SUR LA FONCTION ======
 %La variable E contient les longueurs d'onde des raies potentiellement identifiables
 %Les variables Lambda et Int sont les x et y du spectre expérimental
@@ -49,7 +49,7 @@ clear IntBkgd
 
 
 %% Puis on démarre la boucle pour trouver chacune de ces raies
-plage = plage_initiale;
+plage = plage_initiale; % initialisation de la plage de points que fait un pic
 for q=1:length(E)  
  if Fit(q) == 1
         %pouvoir ploter le smooth en ayant un q=0. sinon il plot 2 fois
@@ -58,7 +58,6 @@ for q=1:length(E)
         [IntTemp,LambdaTemp,moyenne] = PlageIntegration(E(q),Lambda,Int,plage,bkgd);
           %========================== fin ==========================
 
-    
         %Si le pic détecté dans l'interval est au-dessus de 0, on continue les démarches
         if max(IntTemp)>0
             %La procédure du fit ne s'entame que si la raie se distingue du bruit de fond
@@ -368,7 +367,7 @@ for q=1:length(E)
 end
 
 %% Visualisation de l'obtention des intensités fittées pour comparaison 
-if GraphExp==1
+if GraphExp==1 % il faut le mettre à 1 manuellement si on veut voir!!
     figure
     set(gcf,'color','w');
     plot(Lambda,(Int-bkgd))
@@ -377,6 +376,7 @@ if GraphExp==1
     hold off
 end
 
+% graph avec tout les fit sur le spectre
 if GraphAll==1
     figure
     set(gcf,'color','w');

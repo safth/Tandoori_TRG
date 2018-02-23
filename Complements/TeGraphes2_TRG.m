@@ -64,8 +64,15 @@ clear tempData
         I_theo=I_theo*moyenne;
     sig_I_theo=sig_I_theo*moyenne;
 
-
-% ############# fig temporaire de I exp/I theo
+%%
+%##########################################################################
+%##########################################################################    
+%###################### Figure TEMPORAIRE ##################################    
+%##########################################################################    
+%##########################################################################  
+% Cette figure donne les rapports Iexp/Icalc pour voir visuellement si des
+% raies sont très mals fittés
+ 
 
     figure2=figure;
     set(figure2,'name','Rapport Iexp/Itheo','numbertitle','off','Position',[200 600 1000 600])
