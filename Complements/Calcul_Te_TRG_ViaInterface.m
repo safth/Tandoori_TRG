@@ -169,19 +169,19 @@ for k=1:length(fileNames)
     end
 
     %% ============= Correction pour un décallage éventuel en longueur d'onde fixé sur la 763nm =============
-    %lambdaTe(769:end)=lambdaTe(769:end)+0.5;
-%     w=1;
-%     for j=1:length(lambdaTe)
-%         if abs(lambdaTe(j)-763.51)<2
-%             IntTemp(w)=intTe(j);
-%             LambdaTemp(w)=lambdaTe(j);
-%             w=w+1;
-%         end
-%     end
-%     
-%     Shift=763.51-LambdaTemp(IntTemp==max(IntTemp));
-%     lambdaTe=lambdaTe+Shift;
-%     clear Shift w j IntTemp LambdaTemp
+    lambdaTe(769:end)=lambdaTe(769:end)+0.5;
+    w=1;
+    for j=1:length(lambdaTe)
+        if abs(lambdaTe(j)-763.51)<2
+            IntTemp(w)=intTe(j);
+            LambdaTemp(w)=lambdaTe(j);
+            w=w+1;
+        end
+    end
+    
+    Shift=763.51-LambdaTemp(IntTemp==max(IntTemp));
+    lambdaTe=lambdaTe+Shift;
+    clear Shift w j IntTemp LambdaTemp
     %% ============= Obtention de l'intensité des différentes raies (au max du pic avec fit Gaussien=============
     [IntPeak,sig_IntPeak,Fit] = IntensiteGaussMax_TRG(E,lambdaTe,intTe,GraphExp,Doublet,Overwrite); 
     %La variable Fit dit quelles raies ont effectivement été fittées
