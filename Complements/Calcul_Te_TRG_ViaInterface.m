@@ -135,7 +135,7 @@ for k=1:length(fileNames)
     %% ============= Extraction des données brutes (pour fichier .trtx) =============
     if filetype == 2
         %function qui prend les temp d'integration des deux spectros utilisés (pour le 500-900, merge, 2 temps d'integration différents)
-        [Int_time_correction] = IntTime_trtx(fileNames{k});   
+        [Int_time_correction] = IntTime_trtx(fileNames{k});  
         file1=fopen(fileNames{k});
         tempdata=textscan(file1, '%f%f','delimiter',';', 'headerlines',10);  % Extraction des datas
         lambdaTe=tempdata{1};                   % Longueurs d'ondes des mesures
@@ -253,20 +253,40 @@ disp ('Calcul de l''intensité théorique des raies...')
     
     
     %% =============== sélection des taux de réactions ===============
-    global K_1s_2p K_gs_1s K_quench_1s K_neutral K_gs_2p %initialise
     %load des taux précalculés et asignation d'une variable global à chacun
-    load Allrates1s_2p.mat 
-    load AllratesGround_1s.mat 
-    load AllratesQuenching_1s.mat
-    load Allrates_neutral.mat
-    if ChoixHautePression==0
-      load AllratesGround_2p.mat    %AllratesGround_2p(#gas,2Px,Te)
-      K_gs_2p = AllratesGround_2p;
-    elseif ChoixHautePression==1 %si on est à Haute pression partielles d'Argon (>1mtorr)
-      load AllratesGround_2p_HighP.mat    %AllratesGround_2p(#gas,2Px,Te)
-      K_gs_2p = AllratesGround_2p_HighP;
-    end
+        %initialise des globals
+    global K_1s_2p K_gs_1s K_quench_1s K_neutral K_gs_2p Choix_Taux 
     
+    % prend des .mat moins lourds et donc, plus rapide!!
+    if Choix_Taux ==1 % si on est maxwellien (exposant=1)
+        load M_Allrates1s_2p.mat 
+        load M_AllratesGround_1s.mat 
+        load M_AllratesQuenching_1s.mat
+        load M_Allrates_neutral.mat
+        if ChoixHautePression==0
+            load M_AllratesGround_2p.mat    %AllratesGround_2p(#gas,2Px,Te)
+        elseif ChoixHautePression==1 %si on est à Haute pression partielles d'Argon (>1mtorr)
+            load M_AllratesGround_2p_HighP.mat    %AllratesGround_2p(#gas,2Px,Te)
+        end 
+        % prend les fichiers lourds avec tous les exposants si on ne prend pas exposant=1
+    else
+        load Allrates1s_2p.mat 
+        load AllratesGround_1s.mat 
+        load AllratesQuenching_1s.mat
+        load Allrates_neutral.mat
+        if ChoixHautePression==0
+            load AllratesGround_2p.mat    %AllratesGround_2p(#gas,2Px,Te)
+        elseif ChoixHautePression==1 %si on est à Haute pression partielles d'Argon (>1mtorr)
+            load AllratesGround_2p_HighP.mat    %AllratesGround_2p(#gas,2Px,Te)
+        end
+    end
+
+    % assigne les Taux aux variables globals
+    if ChoixHautePression==0
+        K_gs_2p = AllratesGround_2p;
+    elseif ChoixHautePression==1 %si on est à Haute pression partielles d'Argon (>1mtorr)
+        K_gs_2p = AllratesGround_2p_HighP;
+    end
     K_1s_2p     =Allrates1s_2p;
     K_gs_1s     =AllratesGround_1s;
     K_quench_1s =AllratesQuenching_1s;

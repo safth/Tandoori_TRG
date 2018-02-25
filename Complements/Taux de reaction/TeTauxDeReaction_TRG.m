@@ -10,7 +10,7 @@ function [rateGround_1s,rateGround_2p,rate1s_2p,rateQuenching,rateNeutral,sig_ra
    %Taux de réactions pour Te=0.05eV jusquà 10eV par step de 0.001eV
    % #gaz 3=Ar 2=Ne, 4=Kr, 5=Xe
 
-    global K_1s_2p K_gs_1s K_quench_1s K_neutral K_gs_2p
+    global K_1s_2p K_gs_1s K_quench_1s K_neutral K_gs_2p Choix_Taux
 
 %% ============== Boucle d'initialisation sur Te pour la sélection des bons taux de réaction ==============
         %Préallocation d'espace
@@ -37,13 +37,16 @@ function [rateGround_1s,rateGround_2p,rate1s_2p,rateQuenching,rateNeutral,sig_ra
           end
         
     for j=1:length(Te)       %Boucle sur Te
-        %D'abord on trouve la position du Te correspondant dans Allrates
+        % D'abord on trouve la position du Te correspondant dans Allrates
         position=round((Te(j)/0.01)-4);    %-4pour retomber à une position 1 pour Te=0.05 et matcher le pas de TeTauxdeReaction pas de 0.01 de 0.05 à 50 eV     
-        e = round((exposant/0.01)-9);           %   position de l'exposant                
-
-      %  position=round((Te(j)/0.1)-4);        %pour ceux de TEOES , enlever fudge                         
+        % Après, on trouve al position de l'exposant
+        if Choix_Taux == 1
+            e = 1;% position de l'exposant si on a les Taux de réaction Maxwelliens
+        else
+            e = round((exposant/0.01)-9);% position de l'exposant si on est pas Maxwellien.
+        end
+        
         %Puis on sélectionne les taux du fondamental aux 1s via impact électronique
-
         for l=1:pas:5
             rateGround_1s(l,j)=K_gs_1s(e,gaz,l,position);
         end 

@@ -15,7 +15,7 @@
 % pour le mixing des résonant, on a LXCAT NGFSRDW
 % et du time reversal pour le reste qui est pas sur LXCAT.
 
- Te = 0.05:0.01:15;
+ Te = 0.05:0.01:30;
  exposant=0.1:0.01:2;
 
 

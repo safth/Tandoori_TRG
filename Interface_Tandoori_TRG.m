@@ -359,6 +359,17 @@ end
          
          %% Exposant 1=maxwell, 2=Druyvesteyn
          exposant=str2double(get(handles.exposant,'String')); 
+         % si on a une maxwelienne (comme dans 99% des cas qu'on roule le
+         % code), on prend des fichiers .mat, avec les taux de reaction
+         % pour tous les Te calculé sans la dimension supplémentaire de
+         % l'exposant qui rallenti beaucoup le code!! Derien.
+         
+         global Choix_Taux
+         if exposant ==1
+             Choix_Taux=1;
+         else 
+             Choix_Taux=0
+         end
          
          %% Extension fichier
          contentsExtension = cellstr(get(handles.ExtensionFichier,'String'));
@@ -398,6 +409,8 @@ end
             ChoixDimension='Simon 2.45GhZ.txt';
         elseif get(handles.ChoixDimension,'value')==4 %
             ChoixDimension='Dimension_HiPIMS.txt';
+        elseif get(handles.ChoixDimension,'value')==5 %
+            ChoixDimension='Dimension_ECR.txt';
         end
          
         %% pressions partielles

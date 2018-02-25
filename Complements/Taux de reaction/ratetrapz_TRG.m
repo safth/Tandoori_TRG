@@ -32,8 +32,8 @@ end
 B1=exposant.*(2/3).^(3/2).*(gamma(5./(2.*exposant))).^(3/2)./(gamma(3./(2.*exposant))).^(5/2);
 B2=(2/3).*gamma(5./(2.*exposant))./gamma(3./(2.*exposant));
 
-
 sigmaE = @(E) (interp1(energie,sectioneff,E).*E.*B1*Te^(-3/2).*exp(-(B2*E./Te).^exposant));
 
 result = (sqrt(2*e/me)).*(integral(sigmaE,min(energie),max(energie)));
+
 end
