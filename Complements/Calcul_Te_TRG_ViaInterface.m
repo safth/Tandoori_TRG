@@ -169,7 +169,7 @@ for k=1:length(fileNames)
     end
 
     %% ============= Correction pour un décallage éventuel en longueur d'onde fixé sur la 763nm =============
-    lambdaTe(769:end)=lambdaTe(769:end)+0.5;
+   % lambdaTe(769:end)=lambdaTe(769:end)+0.5;
     w=1;
     for j=1:length(lambdaTe)
         if abs(lambdaTe(j)-763.51)<2
@@ -199,7 +199,7 @@ for k=1:length(fileNames)
     %check si l'intensité de la raie est plus grande que son incertitude.
     %Si oui, on l'enleve.
     for m=1:size(I_exp,2)
-        if I_exp(k,m) < sig_I_exp(k,m)
+        if (I_exp(k,m) < sig_I_exp(k,m)) | isnan(I_exp(k,m)) | isnan(sig_I_exp(k,m))
             I_exp(k,m) = 0;
             sig_I_exp(k,m) = 0;
             FitCorrige(k,m) = 0;
