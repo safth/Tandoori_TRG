@@ -100,154 +100,114 @@ I_exp           =zeros(length(fileNames),length(E));
 sig_I_exp       =zeros(length(fileNames),length(E));
 FitCorrige      =zeros(length(fileNames),length(E));
 
-
-%% regarde si on a pas déjà extrait les intensités théoriques.
- disp ('Extraction de l''intensité des raies des fichiers...')
-    h = waitbar(0,'Fit des spectres') ; % affichage d'une WaitBar qui montre la progression du code.
+%% ============= Extraction de l'intensité des raies de chaque spectre (i.e. fichier) =============
+disp ('Extraction de l''intensité des raies des fichiers...')
+h = waitbar(0,'Fit des spectres') ; % affichage d'une WaitBar qui montre la progression du code.
+for k=1:length(fileNames)
+    Fichier=fileNames{k}          %Affiche à l'écran quel fichier est actuellement analysé
+    NumFichier(k)=k;              %Vecteur servant aux graphiques finaux de Te et Nm pour chaque fichier
+   
+    %% ============= Extraction des données brutes (pour fichier .csv) =============
+    if filetype == 0
+        tempdata=dlmread(fileNames{k});         % Extraction des data
+        lambdaTe=tempdata(:,1);                 % Longueurs d'ondes des mesures
+        intTe=tempdata(:,2);                    % Intensité des mesures          
+        clear tempdata                          % On a plus besoin de tempdata  
+        Int_time_correction=1;
+    end   
+    %% ============= Extraction des données brutes de Morgane (pour fichier .csv) =============
+    if filetype == 0.1 %fuck it
+        tempdata=dlmread(fileNames{k});         % Extraction des data
+        lambdaTe=tempdata(:,1);                 % Longueurs d'ondes des mesures
+        intTe=tempdata(:,3);                    % Intensité des mesures POUR MORGANE 
+        clear tempdata                          % On a plus besoin de tempdata
+        Int_time_correction=1;
+    end    
+    %% ============= Extraction des données brutes (pour fichier .trt) =============
+    if filetype == 1
+        file1=fopen(fileNames{k});
+        tempdata=textscan(file1, '%f%f','delimiter',';', 'headerlines',8);  % Extraction des datas 
+        lambdaTe=tempdata{1};                   % Longueurs d'ondes des mesures
+        intTe=tempdata{2};                      % Intensité des mesures
+        clear tempdata                          % On a plus besoin de tempdata   
+        Int_time_correction=1;
+    end    
+    %% ============= Extraction des données brutes (pour fichier .trtx) =============
+    if filetype == 2
+        %function qui prend les temp d'integration des deux spectros utilisés (pour le 500-900, merge, 2 temps d'integration différents)
+        [Int_time_correction] = IntTime_trtx(fileNames{k});  
+        file1=fopen(fileNames{k});
+        tempdata=textscan(file1, '%f%f','delimiter',';', 'headerlines',10);  % Extraction des datas
+        lambdaTe=tempdata{1};                   % Longueurs d'ondes des mesures
+        intTe=tempdata{2};                      % Intensité des mesures
+        clear tempdata                          % On a plus besoin de tempdata 
+    end  
+    %% ============= Extraction des données brutes (pour fichier .txt) =============
+    if filetype == 3
+        file1=fopen(fileNames{k});
+        tempdata=textscan(file1, '%f%f','delimiter',' ');  % Extraction des datas
+        lambdaTe=tempdata{1};                   % Longueurs d'ondes des mesures
+        intTe=tempdata{2};                      % Intensité des mesures
+        clear tempdata                          % On a plus besoin de tempdata 
+        Int_time_correction=1;
+    end     
+    %% ============= Extraction des données brutes (pour fichier .TXT (Avantes8)) =============
+    if filetype == 4
+        file1=fopen(fileNames{k});
+        tempdata=textscan(file1, '%s\t%s\t%s\t%s','delimiter',';', 'headerlines',9);  % Extraction des datas 
+        lambdaTe=tempdata{1}  ;                 % Longueurs d'ondes des mesures
+        lambdaTe=str2double(strrep(lambdaTe,',','.'));
+        intTe=tempdata{2};                      % Intensité des mesures
+        intTe=str2double(strrep(intTe,',','.'));
+        clear tempdata                          % On a plus besoin de tempdata 
+        Int_time_correction=0.1;
+    end
     
-% si non, on les extrait et save le resultats dans I_exp.mat
-%JE VEUX QUE LE CODE FIT SEULEMENT LES RAIES QUI MANQUE ET QUIL RAJOUTE LE
-%RÉSULTAT DANS LA STRUCTURE. SINON, LE TE_ALL N'A PAS LE NÉON ET IL
-%RECALCULE TOUT. DONC SEULEMENT RAJOUTER LE NEON QUAND JE FAIT TAIL.
-
-if exist('I_exp.mat','file')==2 % si le fichier existe
-    load 'I_exp.mat';
-    % regarde si le overwrite match pour tous les fichiers.
-    % si une raies n'a pas été fitté quelque part, le overwrite va pas
-    % matché
-    Fit = Struc.Fit;
-    for k=1:length(fileNames)
-        FitCorrige(k,:)=Fit(k,:).*Overwrite;
-        I_exp(k,:) = Struc.I_exp(k,:).*FitCorrige(k,:);
-        sig_I_exp = Struc.sig_I_exp.*FitCorrige(k,:);
+    %% ============= Correction par la fonction de réponse si nécessaire =============
+    if FctRep~= 0
+       intTe=intTe./FctRep(:,2);    % Ireel=Imesure/Fct de reponse
     end
 
-else     
-    temp_Overwrite = ones(1,41)
-       
-    %% ============= Extraction de l'intensité des raies de chaque spectre (i.e. fichier) =============
-   for k=1:length(fileNames)
-        Fichier=fileNames{k}          %Affiche à l'écran quel fichier est actuellement analysé
-        NumFichier(k)=k;              %Vecteur servant aux graphiques finaux de Te et Nm pour chaque fichier
-
-        %% ============= Extraction des données brutes (pour fichier .csv) =============
-        if filetype == 0
-            tempdata=dlmread(fileNames{k});         % Extraction des data
-            lambdaTe=tempdata(:,1);                 % Longueurs d'ondes des mesures
-            intTe=tempdata(:,2);                    % Intensité des mesures          
-            clear tempdata                          % On a plus besoin de tempdata  
-            Int_time_correction=1;
-        end   
-        %% ============= Extraction des données brutes de Morgane (pour fichier .csv) =============
-        if filetype == 0.1 %fuck it
-            tempdata=dlmread(fileNames{k});         % Extraction des data
-            lambdaTe=tempdata(:,1);                 % Longueurs d'ondes des mesures
-            intTe=tempdata(:,3);                    % Intensité des mesures POUR MORGANE 
-            clear tempdata                          % On a plus besoin de tempdata
-            Int_time_correction=1;
-        end    
-        %% ============= Extraction des données brutes (pour fichier .trt) =============
-        if filetype == 1
-            file1=fopen(fileNames{k});
-            tempdata=textscan(file1, '%f%f','delimiter',';', 'headerlines',8);  % Extraction des datas 
-            lambdaTe=tempdata{1};                   % Longueurs d'ondes des mesures
-            intTe=tempdata{2};                      % Intensité des mesures
-            clear tempdata                          % On a plus besoin de tempdata   
-            Int_time_correction=1;
-        end    
-        %% ============= Extraction des données brutes (pour fichier .trtx) =============
-        if filetype == 2
-            %function qui prend les temp d'integration des deux spectros utilisés (pour le 500-900, merge, 2 temps d'integration différents)
-            [Int_time_correction] = IntTime_trtx(fileNames{k});  
-            file1=fopen(fileNames{k});
-            tempdata=textscan(file1, '%f%f','delimiter',';', 'headerlines',10);  % Extraction des datas
-            lambdaTe=tempdata{1};                   % Longueurs d'ondes des mesures
-            intTe=tempdata{2};                      % Intensité des mesures
-            clear tempdata                          % On a plus besoin de tempdata 
-        end  
-        %% ============= Extraction des données brutes (pour fichier .txt) =============
-        if filetype == 3
-            file1=fopen(fileNames{k});
-            tempdata=textscan(file1, '%f%f','delimiter',' ');  % Extraction des datas
-            lambdaTe=tempdata{1};                   % Longueurs d'ondes des mesures
-            intTe=tempdata{2};                      % Intensité des mesures
-            clear tempdata                          % On a plus besoin de tempdata 
-            Int_time_correction=1;
-        end     
-        %% ============= Extraction des données brutes (pour fichier .TXT (Avantes8)) =============
-        if filetype == 4
-            file1=fopen(fileNames{k});
-            tempdata=textscan(file1, '%s\t%s\t%s\t%s','delimiter',';', 'headerlines',9);  % Extraction des datas 
-            lambdaTe=tempdata{1}  ;                 % Longueurs d'ondes des mesures
-            lambdaTe=str2double(strrep(lambdaTe,',','.'));
-            intTe=tempdata{2};                      % Intensité des mesures
-            intTe=str2double(strrep(intTe,',','.'));
-            clear tempdata                          % On a plus besoin de tempdata 
-            Int_time_correction=0.1;
+    %% ============= Correction pour un décallage éventuel en longueur d'onde fixé sur la 763nm =============
+    lambdaTe(769:end)=lambdaTe(769:end)+0.5;
+    w=1;
+    for j=1:length(lambdaTe)
+        if abs(lambdaTe(j)-763.51)<2
+            IntTemp(w)=intTe(j);
+            LambdaTemp(w)=lambdaTe(j);
+            w=w+1;
         end
-
-        %% ============= Correction par la fonction de réponse si nécessaire =============
-        if FctRep~= 0
-           intTe=intTe./FctRep(:,2);    % Ireel=Imesure/Fct de reponse
-        end
-
-        %% ============= Correction pour un décallage éventuel en longueur d'onde fixé sur la 763nm =============
-        lambdaTe(769:end)=lambdaTe(769:end)+0.5;
-        w=1;
-        for j=1:length(lambdaTe)
-            if abs(lambdaTe(j)-763.51)<2
-                IntTemp(w)=intTe(j);
-                LambdaTemp(w)=lambdaTe(j);
-                w=w+1;
-            end
-        end
-
-        Shift=763.51-LambdaTemp(IntTemp==max(IntTemp));
-        lambdaTe=lambdaTe+Shift;
-        clear Shift w j IntTemp LambdaTemp
-        %% ============= Obtention de l'intensité des différentes raies (au max du pic avec fit Gaussien=============
-        [IntPeak,sig_IntPeak,Fit] = IntensiteGaussMax_TRG(E,lambdaTe,intTe,GraphExp,Doublet,temp_Overwrite); 
-        %La variable Fit dit quelles raies ont effectivement été fittées
-
-        %SaveIntPeak(k,:) =IntPeak;
-        %% ============== Correction pour les raies qui ne doivent pas être considérée =============
-        temp_FitCorrige(k,:)=Fit.*temp_Overwrite;
-        FitCorrige(k,:)=Fit.*Overwrite;
-        temp_I_exp(k,:)=IntPeak'.*temp_FitCorrige(k,:);
-        I_exp(k,:)=IntPeak'.*FitCorrige(k,:);
-        %correction pour le integration time du 500-700, les raies 1 à 6 sont sur le 500-700
-        I_exp(k,1:6)=I_exp(k,1:6)*Int_time_correction; 
-        temp_I_exp(k,1:6)=temp_I_exp(k,1:6)*Int_time_correction; 
-        % meme chose pour l'incertitude
-        sig_I_exp(k,:)=sig_IntPeak'.*FitCorrige(k,:);
-        temp_sig_I_exp(k,:)=sig_IntPeak'.*temp_FitCorrige(k,:);
-        sig_I_exp(k,1:6)=sig_I_exp(k,1:6)*Int_time_correction; %correction pour le integration time du 500, les raies 1 à 6 sont sur le 500-700
-        temp_sig_I_exp(k,1:6)=temp_sig_I_exp(k,1:6)*Int_time_correction;
-        clear  lambdaTe intTe Fit IntPeak sig_IntPeak
-        %check si l'intensité de la raie est plus grande que son incertitude.
-        %Si oui, on l'enleve.
-        for m=1:size(I_exp,2)
-            if I_exp(k,m) < sig_I_exp(k,m)
-                I_exp(k,m) = 0;
-                sig_I_exp(k,m) = 0;
-                FitCorrige(k,m) = 0;
-                disp('Intensité fitté plus petit que l incertitude.')
-            end
-        end
-           waitbar(k/length(fileNames),h) %la waitbar progresse apres chaque spectre fitté.
-    end %fin de la boucle sur les différents spectres
-    %% Sauvegarde des I_exp dans un structure. Si on a deja fité une fois et qu'on reroule le code, pas besoins de refiter.
-    %%
+    end
     
-    Struc.I_exp = temp_I_exp;
-    Struc.sig_I_exp = temp_sig_I_exp;
-    Struc.Fit = temp_FitCorrige;
-    save('I_exp.mat','Struc');
+    Shift=763.51-LambdaTemp(IntTemp==max(IntTemp));
+    lambdaTe=lambdaTe+Shift;
+    clear Shift w j IntTemp LambdaTemp
+    %% ============= Obtention de l'intensité des différentes raies (au max du pic avec fit Gaussien=============
+    [IntPeak,sig_IntPeak,Fit] = IntensiteGaussMax_TRG(E,lambdaTe,intTe,GraphExp,Doublet,Overwrite); 
+    %La variable Fit dit quelles raies ont effectivement été fittées
     
-end
-
-
-
+    %SaveIntPeak(k,:) =IntPeak;
+    %% ============== Correction pour les raies qui ne doivent pas être considérée =============
+    FitCorrige(k,:)=Fit.*Overwrite;
+    I_exp(k,:)=IntPeak'.*FitCorrige(k,:);
+    %correction pour le integration time du 500-700, les raies 1 à 6 sont sur le 500-700
+    I_exp(k,1:6)=I_exp(k,1:6)*Int_time_correction; 
+    % meme chose pour l'incertitude
+    sig_I_exp(k,:)=sig_IntPeak'.*FitCorrige(k,:);
+    sig_I_exp(k,1:6)=sig_I_exp(k,1:6)*Int_time_correction; %correction pour le integration time du 500, les raies 1 à 6 sont sur le 500-700
+    clear  lambdaTe intTe Fit IntPeak sig_IntPeak
+    %check si l'intensité de la raie est plus grande que son incertitude.
+    %Si oui, on l'enleve.
+    for m=1:size(I_exp,2)
+        if I_exp(k,m) < sig_I_exp(k,m)
+            I_exp(k,m) = 0;
+            sig_I_exp(k,m) = 0;
+            FitCorrige(k,m) = 0;
+            disp('Intensité fitté plus petit que l incertitude.')
+        end
+    end
+       waitbar(k/length(fileNames),h) %la waitbar progresse apres chaque spectre fitté.
+end %fin de la boucle sur les différents spectres
 disp ('Intensités extraites des fichiers')
 clear Doublet filetype
 % save('SaveIntPeak.mat','SaveIntPeak')
