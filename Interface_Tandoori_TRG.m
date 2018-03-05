@@ -411,6 +411,8 @@ end
             ChoixDimension='Dimension_HiPIMS.txt';
         elseif get(handles.ChoixDimension,'value')==5 %
             ChoixDimension='Dimension_ECR.txt';
+        elseif get(handles.ChoixDimension,'value')==6 %
+            ChoixDimension='Dimension_ICP_Pierre.txt';
         end
          
         %% pressions partielles
